@@ -1,0 +1,753 @@
+openapi: 3.1.0
+
+info:
+  title: Content API
+  version: 1.0.0
+  description: API contract for the content
+
+servers:
+  - url: /api
+    description: Local dev (proxied by Vite)
+
+# -------------------------------------------------------
+# Reusable components
+# -------------------------------------------------------
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  parameters:
+    SubmissionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^c[a-z0-9]{24}$'
+
+  schemas:
+
+    # --- Enums ---
+
+    SubmissionStatus:
+      type: string
+      enum: [pending, approved, rejected, flagged]
+
+    SubmissionType:
+      type: string
+      enum: [article, image, video, link]
+
+    SubmitterTier:
+      type: string
+      enum: [free, pro, verified]
+
+    VideoResolution:
+      type: string
+      enum: [480p, 720p, 1080p, 4k]
+
+    ReviewVerdict:
+      type: string
+      enum: [approved, rejected]
+
+    SortOrder:
+      type: string
+      enum: [asc, desc]
+
+    # --- Shared structures ---
+
+    Pagination:
+      type: object
+      required: [page, pageSize, total, totalPages]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    # --- Submitter ---
+
+    Submitter:
+      type: object
+      required: [id, name, email, tier]
+      properties:
+        id:
+          type: string
+          pattern: '^c[a-z0-9]{24}$'
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        tier:
+          $ref: '#/components/schemas/SubmitterTier'
+
+    # --- Content (discriminated union via oneOf) ---
+
+    BaseContent:
+      type: object
+      required: [url, thumbnailUrl]
+      properties:
+        url:
+          type: string
+          format: uri
+        thumbnailUrl:
+          type: string
+          format: uri
+          nullable: true
+
+    ArticleContent:
+      allOf:
+        - $ref: '#/components/schemas/BaseContent'
+        - type: object
+          required: [type, wordCount, readingTime]
+          properties:
+            type:
+              type: string
+              enum: [article]
+            wordCount:
+              type: integer
+              minimum: 1
+            readingTime:
+              type: integer
+              minimum: 1
+
+    VideoContent:
+      allOf:
+        - $ref: '#/components/schemas/BaseContent'
+        - type: object
+          required: [type, duration, resolution]
+          properties:
+            type:
+              type: string
+              enum: [video]
+            duration:
+              type: integer
+              minimum: 1
+            resolution:
+              $ref: '#/components/schemas/VideoResolution'
+
+    ImageContent:
+      allOf:
+        - $ref: '#/components/schemas/BaseContent'
+        - type: object
+          required: [type, width, height]
+          properties:
+            type:
+              type: string
+              enum: [image]
+            width:
+              type: integer
+              minimum: 1
+            height:
+              type: integer
+              minimum: 1
+
+    LinkContent:
+      allOf:
+        - $ref: '#/components/schemas/BaseContent'
+        - type: object
+          required: [type, domain, isBehindPaywall]
+          properties:
+            type:
+              type: string
+              enum: [link]
+            domain:
+              type: string
+            isBehindPaywall:
+              type: boolean
+
+    Content:
+      oneOf:
+        - $ref: '#/components/schemas/ArticleContent'
+        - $ref: '#/components/schemas/VideoContent'
+        - $ref: '#/components/schemas/ImageContent'
+        - $ref: '#/components/schemas/LinkContent'
+      discriminator:
+        propertyName: type
+        mapping:
+          article: '#/components/schemas/ArticleContent'
+          video: '#/components/schemas/VideoContent'
+          image: '#/components/schemas/ImageContent'
+          link: '#/components/schemas/LinkContent'
+
+    # --- Review ---
+
+    Review:
+      type: object
+      required: [reviewerId, verdict, reason, reviewedAt]
+      properties:
+        reviewerId:
+          type: string
+          pattern: '^c[a-z0-9]{24}$'
+        verdict:
+          $ref: '#/components/schemas/ReviewVerdict'
+        reason:
+          type: string
+          minLength: 10
+        reviewedAt:
+          type: string
+          format: date-time
+
+    # --- Submission ---
+
+    Submission:
+      type: object
+      required:
+        - id
+        - title
+        - type
+        - status
+        - submitter
+        - content
+        - tags
+        - review
+        - score
+        - flagCount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          pattern: '^c[a-z0-9]{24}$'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/SubmissionType'
+        status:
+          $ref: '#/components/schemas/SubmissionStatus'
+        submitter:
+          $ref: '#/components/schemas/Submitter'
+        content:
+          $ref: '#/components/schemas/Content'
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 5
+        review:
+          oneOf:
+            - $ref: '#/components/schemas/Review'
+            - type: 'null'
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        flagCount:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # --- Form payloads ---
+
+    SubmissionCreateBody:
+      type: object
+      required: [title, type, tags, content]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/SubmissionType'
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 5
+        content:
+          $ref: '#/components/schemas/Content'
+
+    SubmissionUpdateBody:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 5
+        content:
+          $ref: '#/components/schemas/Content'
+
+    BatchReviewBody:
+      type: object
+      required: [ids, verdict, reason]
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            pattern: '^c[a-z0-9]{24}$'
+          minItems: 1
+        verdict:
+          $ref: '#/components/schemas/ReviewVerdict'
+        reason:
+          type: string
+          minLength: 10
+
+    BatchDeleteBody:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            pattern: '^c[a-z0-9]{24}$'
+          minItems: 1
+
+    # --- Auth ---
+
+    LoginBody:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    AuthUser:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id:
+          type: string
+          pattern: '^c[a-z0-9]{24}$'
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, reviewer]
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/AuthUser'
+
+    # --- Dashboard ---
+
+    DashboardSummary:
+      type: object
+      required:
+        - totalSubmissions
+        - pendingCount
+        - approvedCount
+        - rejectedCount
+        - flaggedCount
+      properties:
+        totalSubmissions:
+          type: integer
+        pendingCount:
+          type: integer
+        approvedCount:
+          type: integer
+        rejectedCount:
+          type: integer
+        flaggedCount:
+          type: integer
+
+    DashboardByType:
+      type: object
+      required: [type, count, approvalRate]
+      properties:
+        type:
+          $ref: '#/components/schemas/SubmissionType'
+        count:
+          type: integer
+        approvalRate:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    RecentActivity:
+      type: object
+      required: [submissionId, title, action, actorName, occurredAt]
+      properties:
+        submissionId:
+          type: string
+          pattern: '^c[a-z0-9]{24}$'
+        title:
+          type: string
+        action:
+          type: string
+          enum: [submitted, approved, rejected, flagged]
+        actorName:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+
+    TopSubmitter:
+      type: object
+      required: [submitterId, name, tier, submissionCount, approvalRate]
+      properties:
+        submitterId:
+          type: string
+          pattern: '^c[a-z0-9]{24}$'
+        name:
+          type: string
+        tier:
+          $ref: '#/components/schemas/SubmitterTier'
+        submissionCount:
+          type: integer
+        approvalRate:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    DashboardStats:
+      type: object
+      required: [summary, byType, recentActivity, topSubmitters]
+      properties:
+        summary:
+          $ref: '#/components/schemas/DashboardSummary'
+        byType:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardByType'
+        recentActivity:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecentActivity'
+        topSubmitters:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopSubmitter'
+
+# -------------------------------------------------------
+# Security (global)
+# -------------------------------------------------------
+security:
+  - bearerAuth: []
+
+# -------------------------------------------------------
+# Paths
+# -------------------------------------------------------
+paths:
+
+  # --- Auth ---
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginBody'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Logout
+      responses:
+        '204':
+          description: Logout successful
+
+  /auth/me:
+    get:
+      tags: [auth]
+      summary: Get current user
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AuthUser'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Submissions ---
+
+  /submissions:
+    get:
+      tags: [submissions]
+      summary: List submissions
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/SubmissionStatus'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/SubmissionType'
+        - name: tier
+          in: query
+          schema:
+            $ref: '#/components/schemas/SubmitterTier'
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, score, flagCount]
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+            default: desc
+      responses:
+        '200':
+          description: Paginated submission list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, pagination]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Submission'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags: [submissions]
+      summary: Create submission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionCreateBody'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Submission'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /submissions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SubmissionId'
+
+    get:
+      tags: [submissions]
+      summary: Get submission by id
+      responses:
+        '200':
+          description: Submission detail
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Submission'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags: [submissions]
+      summary: Update submission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionUpdateBody'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Submission'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [submissions]
+      summary: Delete submission
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Batch operations ---
+
+  /submissions/batch-review:
+    post:
+      tags: [submissions]
+      summary: Batch approve or reject submissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchReviewBody'
+      responses:
+        '200':
+          description: Batch review result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [updatedCount]
+                properties:
+                  updatedCount:
+                    type: integer
+
+  /submissions/batch-delete:
+    post:
+      tags: [submissions]
+      summary: Batch delete submissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchDeleteBody'
+      responses:
+        '200':
+          description: Batch delete result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deletedCount]
+                properties:
+                  deletedCount:
+                    type: integer
+
+  # --- Dashboard ---
+
+  /dashboard/stats:
+    get:
+      tags: [dashboard]
+      summary: Get dashboard statistics
+      responses:
+        '200':
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DashboardStats'
