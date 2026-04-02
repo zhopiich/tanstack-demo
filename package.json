@@ -33,6 +33,7 @@
     "@vue/tsconfig": "^0.9.1",
     "eslint": "^10.0.3",
     "jsdom": "^29.0.1",
+    "msw": "^2.12.14",
     "npm-run-all2": "^8.0.4",
     "openapi-typescript": "^7.13.0",
     "typescript": "~6.0.0",
