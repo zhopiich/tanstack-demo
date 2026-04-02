@@ -41,5 +41,10 @@
     "vite-plugin-vue-devtools": "^8.1.1",
     "vitest": "^4.1.2",
     "vue-tsc": "^3.2.6"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
