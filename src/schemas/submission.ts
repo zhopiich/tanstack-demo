@@ -1,9 +1,24 @@
+import type { components } from '@/api/schema'
 import { z } from 'zod'
-import {
-  createDataResponseSchema,
-  createListResponseSchema,
-  CuidSchema,
-} from './common'
+import { createDataResponseSchema, createListResponseSchema, CuidSchema } from './common'
+
+export type SubmissionStatus = components['schemas']['SubmissionStatus']
+export type SubmissionType = components['schemas']['SubmissionType']
+export type SubmitterTier = components['schemas']['SubmitterTier']
+export type VideoResolution = components['schemas']['VideoResolution']
+export type ReviewVerdict = components['schemas']['ReviewVerdict']
+export type Submitter = components['schemas']['Submitter']
+export type ArticleContent = components['schemas']['ArticleContent']
+export type VideoContent = components['schemas']['VideoContent']
+export type ImageContent = components['schemas']['ImageContent']
+export type LinkContent = components['schemas']['LinkContent']
+export type Content = components['schemas']['Content']
+export type Review = components['schemas']['Review']
+export type Submission = components['schemas']['Submission']
+export type SubmissionCreateForm = components['schemas']['SubmissionCreateBody']
+export type SubmissionUpdateForm = components['schemas']['SubmissionUpdateBody']
+export type BatchReviewForm = components['schemas']['BatchReviewBody']
+export type BatchDeleteForm = components['schemas']['BatchDeleteBody']
 
 // Enums
 
@@ -12,20 +27,23 @@ export const SubmissionStatusSchema = z.enum([
   'approved',
   'rejected',
   'flagged',
-])
+]) satisfies z.ZodType<SubmissionStatus>
 
 export const SubmissionTypeSchema = z.enum([
   'article',
   'image',
   'video',
   'link',
-])
+]) satisfies z.ZodType<SubmissionType>
 
-export const SubmitterTierSchema = z.enum(['free', 'pro', 'verified'])
+export const SubmitterTierSchema
+  = z.enum(['free', 'pro', 'verified']) satisfies z.ZodType<SubmitterTier>
 
-export const VideoResolutionSchema = z.enum(['480p', '720p', '1080p', '4k'])
+export const VideoResolutionSchema
+  = z.enum(['480p', '720p', '1080p', '4k']) satisfies z.ZodType<VideoResolution>
 
-export const ReviewVerdictSchema = z.enum(['approved', 'rejected'])
+export const ReviewVerdictSchema
+  = z.enum(['approved', 'rejected']) satisfies z.ZodType<ReviewVerdict>
 
 // Submitter
 
@@ -34,7 +52,7 @@ export const SubmitterSchema = z.object({
   name: z.string(),
   email: z.email(),
   tier: SubmitterTierSchema,
-})
+}) satisfies z.ZodType<Submitter>
 
 // Content (Discriminated Union)
 
@@ -48,35 +66,35 @@ export const ArticleContentSchema = z.object({
   ...BaseContentSchema,
   wordCount: z.number().int().min(1),
   readingTime: z.number().int().min(1),
-})
+}) satisfies z.ZodType<ArticleContent>
 
 export const VideoContentSchema = z.object({
   type: z.literal('video'),
   ...BaseContentSchema,
   duration: z.number().int().min(1),
   resolution: VideoResolutionSchema,
-})
+}) satisfies z.ZodType<VideoContent>
 
 export const ImageContentSchema = z.object({
   type: z.literal('image'),
   ...BaseContentSchema,
   width: z.number().int().min(1),
   height: z.number().int().min(1),
-})
+}) satisfies z.ZodType<ImageContent>
 
 export const LinkContentSchema = z.object({
   type: z.literal('link'),
   ...BaseContentSchema,
   domain: z.string(),
   isBehindPaywall: z.boolean(),
-})
+}) satisfies z.ZodType<LinkContent>
 
 export const ContentSchema = z.discriminatedUnion('type', [
   ArticleContentSchema,
   VideoContentSchema,
   ImageContentSchema,
   LinkContentSchema,
-])
+]) satisfies z.ZodType<Content>
 
 // Review
 
@@ -85,11 +103,11 @@ export const ReviewSchema = z.object({
   verdict: ReviewVerdictSchema,
   reason: z.string().min(10, 'Review must be at least 10 characters'),
   reviewedAt: z.iso.datetime(),
-})
+}) satisfies z.ZodType<Review>
 
 // Submission
 
-export const SubmissionSchema = z
+const SubmissionSchemaBase = z
   .object({
     id: CuidSchema,
     title: z.string().min(1).max(100),
@@ -103,8 +121,10 @@ export const SubmissionSchema = z
     flagCount: z.number().int().min(0),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
-  })
-  .superRefine((data, ctx) => {
+  }) satisfies z.ZodType<Submission>
+
+export const SubmissionSchema
+  = SubmissionSchemaBase.superRefine((data, ctx) => {
     const needsReview = ['approved', 'rejected'].includes(data.status)
     const hasReview = data.review !== null
 
@@ -140,36 +160,17 @@ export const SubmissionCreateFormSchema = z.object({
   type: SubmissionTypeSchema,
   tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed'),
   content: ContentSchema,
-})
+}) satisfies z.ZodType<SubmissionCreateForm>
 
-export const SubmissionUpdateFormSchema = SubmissionCreateFormSchema.partial()
+export const SubmissionUpdateFormSchema
+  = SubmissionCreateFormSchema.partial() satisfies z.ZodType<SubmissionUpdateForm>
 
 export const BatchReviewFormSchema = z.object({
   ids: z.array(CuidSchema).min(1, 'Please select at least one record'),
   verdict: ReviewVerdictSchema,
   reason: z.string().min(10, 'Review must be at least 10 characters'),
-})
+}) satisfies z.ZodType<BatchReviewForm>
 
 export const BatchDeleteFormSchema = z.object({
   ids: z.array(CuidSchema).min(1, 'Please select at least one record'),
-})
-
-//
-
-export type SubmissionStatus = z.infer<typeof SubmissionStatusSchema>
-export type SubmissionType = z.infer<typeof SubmissionTypeSchema>
-export type SubmitterTier = z.infer<typeof SubmitterTierSchema>
-export type VideoResolution = z.infer<typeof VideoResolutionSchema>
-export type ReviewVerdict = z.infer<typeof ReviewVerdictSchema>
-export type Submitter = z.infer<typeof SubmitterSchema>
-export type ArticleContent = z.infer<typeof ArticleContentSchema>
-export type VideoContent = z.infer<typeof VideoContentSchema>
-export type ImageContent = z.infer<typeof ImageContentSchema>
-export type LinkContent = z.infer<typeof LinkContentSchema>
-export type Content = z.infer<typeof ContentSchema>
-export type Review = z.infer<typeof ReviewSchema>
-export type Submission = z.infer<typeof SubmissionSchema>
-export type SubmissionCreateForm = z.infer<typeof SubmissionCreateFormSchema>
-export type SubmissionUpdateForm = z.infer<typeof SubmissionUpdateFormSchema>
-export type BatchReviewForm = z.infer<typeof BatchReviewFormSchema>
-export type BatchDeleteForm = z.infer<typeof BatchDeleteFormSchema>
+}) satisfies z.ZodType<BatchDeleteForm>
