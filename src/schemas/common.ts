@@ -1,4 +1,8 @@
+import type { components } from '@/api/schema'
 import { z } from 'zod'
+
+export type Pagination = components['schemas']['Pagination']
+export type ErrorResponse = components['schemas']['ErrorResponse']
 
 export const CuidSchema = z.string().regex(
   /^c[a-z0-9]{24}$/,
@@ -10,14 +14,14 @@ export const PaginationSchema = z.object({
   pageSize: z.number().int().min(1).max(100),
   total: z.number().int().min(0),
   totalPages: z.number().int().min(0),
-})
+}) satisfies z.ZodType<Pagination>
 
 export const ErrorResponseSchema = z.object({
   error: z.object({
     code: z.string(),
     message: z.string(),
   }),
-})
+}) satisfies z.ZodType<ErrorResponse>
 
 /**
  * Wraps a single data object for API responses
