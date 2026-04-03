@@ -1,9 +1,14 @@
 import type { components } from '@/api/schema'
 import { http, HttpResponse } from 'msw'
 import { db } from '../db'
+import { resolveToken } from '../utils/resolveToken'
+import { unauthorized } from '../utils/unauthorized'
 
 export const dashboardHandlers = [
-  http.get('/api/dashboard/stats', () => {
+  http.get('/api/dashboard/stats', ({ request }) => {
+    if (!resolveToken(request))
+      return unauthorized()
+
     const all = db.submissions
 
     const summary: components['schemas']['DashboardSummary'] = {
