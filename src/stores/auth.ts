@@ -38,5 +38,9 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = data.data
   }
 
-  return { user, isAuthenticated, role, login, logout, fetchMe }
+  function reset(): void {
+    user.value = null
+  }
+
+  return { user, isAuthenticated, role, login, logout, fetchMe, reset }
 })
