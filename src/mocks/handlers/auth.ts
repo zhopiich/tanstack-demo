@@ -1,0 +1,37 @@
+import type { components } from '@/api/schema'
+import { http, HttpResponse } from 'msw'
+import { db } from '../db'
+
+type LoginBody = components['schemas']['LoginBody']
+type AuthResponse = components['schemas']['AuthResponse']
+type ErrorResponse = components['schemas']['ErrorResponse']
+type EmptyParams = Record<string, never>
+
+function createToken(userId: string): string {
+  return btoa(userId)
+}
+
+export const authHandlers = [
+  http.post<EmptyParams, LoginBody>(
+    '/api/auth/login',
+    async ({ request }) => {
+      const body = await request.json()
+      const userRecord = db.authUsers.find(u => u.email === body.email)
+
+      if (!userRecord || userRecord.password !== body.password) {
+        const error: ErrorResponse = {
+          error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.' },
+        }
+        return HttpResponse.json(error, { status: 401 })
+      }
+
+      const { password: _, ...user } = userRecord
+      const response: AuthResponse = { token: createToken(user.id), user }
+      return HttpResponse.json(response)
+    },
+  ),
+
+  http.post('/api/auth/logout', () => {
+    return new HttpResponse(null, { status: 204 })
+  }),
+]
