@@ -1,6 +1,18 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { onMounted } from 'vue'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import HelloWorld from './components/HelloWorld.vue'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+onMounted(() => {
+  window.addEventListener('auth:unauthorized', () => {
+    authStore.reset()
+    router.push('/login')
+  })
+})
 </script>
 
 <template>

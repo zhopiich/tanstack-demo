@@ -19,6 +19,7 @@ const authMiddleware: Middleware = {
   async onResponse({ response }) {
     if (response.status === 401) {
       clearToken()
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'))
     }
     return response
   },
