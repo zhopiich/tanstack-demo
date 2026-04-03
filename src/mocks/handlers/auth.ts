@@ -5,10 +5,34 @@ import { db } from '../db'
 type LoginBody = components['schemas']['LoginBody']
 type AuthResponse = components['schemas']['AuthResponse']
 type ErrorResponse = components['schemas']['ErrorResponse']
+type AuthUser = components['schemas']['AuthUser']
 type EmptyParams = Record<string, never>
 
 function createToken(userId: string): string {
   return btoa(userId)
+}
+
+export function resolveToken(request: Request): AuthUser | null {
+  const prefix = 'Bearer '
+  const authHeader = request.headers.get('Authorization')
+  if (!authHeader?.startsWith(prefix))
+    return null
+
+  const token = authHeader.slice(prefix.length)
+  let userId: string
+  try {
+    userId = atob(token)
+  }
+  catch {
+    return null
+  }
+
+  const userRecord = db.authUsers.find(u => u.id === userId)
+  if (!userRecord)
+    return null
+
+  const { password: _, ...user } = userRecord
+  return user
 }
 
 export const authHandlers = [
@@ -33,5 +57,16 @@ export const authHandlers = [
 
   http.post('/api/auth/logout', () => {
     return new HttpResponse(null, { status: 204 })
+  }),
+
+  http.get('/api/auth/me', ({ request }) => {
+    const user = resolveToken(request)
+    if (!user) {
+      const error: ErrorResponse = {
+        error: { code: 'UNAUTHORIZED', message: 'Invalid or missing token.' },
+      }
+      return HttpResponse.json(error, { status: 401 })
+    }
+    return HttpResponse.json({ data: user })
   }),
 ]
