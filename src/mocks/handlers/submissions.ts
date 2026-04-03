@@ -1,10 +1,14 @@
 import type { components } from '@/api/schema'
 import { http, HttpResponse } from 'msw'
-import createId from '../createId'
 import { db } from '../db'
+import createId from '../utils/createId'
+import { resolveToken } from '../utils/resolveToken'
+import { unauthorized } from '../utils/unauthorized'
 
 export const submissionHandlers = [
   http.post('/api/submissions/batch-review', async ({ request }) => {
+    if (!resolveToken(request))
+      return unauthorized()
     const body = await request.json() as components['schemas']['BatchReviewBody']
     let updatedCount = 0
     const reviewedAt = new Date().toISOString()
@@ -33,6 +37,8 @@ export const submissionHandlers = [
   }),
 
   http.post('/api/submissions/batch-delete', async ({ request }) => {
+    if (!resolveToken(request))
+      return unauthorized()
     const body = await request.json() as components['schemas']['BatchDeleteBody']
     const idsSet = new Set(body.ids)
     const before = db.submissions.length
@@ -42,6 +48,8 @@ export const submissionHandlers = [
   }),
 
   http.get('/api/submissions', ({ request }) => {
+    if (!resolveToken(request))
+      return unauthorized()
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page') ?? '1')
     const pageSize = Number(url.searchParams.get('pageSize') ?? '20')
@@ -86,6 +94,8 @@ export const submissionHandlers = [
   }),
 
   http.post('/api/submissions', async ({ request }) => {
+    if (!resolveToken(request))
+      return unauthorized()
     const body = await request.json() as components['schemas']['SubmissionCreateBody']
     const submitter = db.submitters[0]
     if (!submitter) {
@@ -111,7 +121,9 @@ export const submissionHandlers = [
     return HttpResponse.json({ data: submission }, { status: 201 })
   }),
 
-  http.get('/api/submissions/:id', ({ params }) => {
+  http.get('/api/submissions/:id', ({ request, params }) => {
+    if (!resolveToken(request))
+      return unauthorized()
     const submission = db.submissions.find(s => s.id === params.id)
     if (!submission) {
       return HttpResponse.json(
@@ -122,7 +134,9 @@ export const submissionHandlers = [
     return HttpResponse.json({ data: submission })
   }),
 
-  http.patch('/api/submissions/:id', async ({ params, request }) => {
+  http.patch('/api/submissions/:id', async ({ request, params }) => {
+    if (!resolveToken(request))
+      return unauthorized()
     const index = db.submissions.findIndex(s => s.id === params.id)
     const submission = db.submissions[index]
     if (!submission) {
@@ -140,7 +154,9 @@ export const submissionHandlers = [
     return HttpResponse.json({ data: db.submissions[index] })
   }),
 
-  http.delete('/api/submissions/:id', ({ params }) => {
+  http.delete('/api/submissions/:id', ({ request, params }) => {
+    if (!resolveToken(request))
+      return unauthorized()
     const index = db.submissions.findIndex(s => s.id === params.id)
     if (index === -1) {
       return HttpResponse.json(

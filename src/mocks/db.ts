@@ -1,5 +1,5 @@
 import type { components } from '@/api/schema'
-import createId from './createId'
+import createId from './utils/createId'
 
 type Submitter = components['schemas']['Submitter']
 type Submission = components['schemas']['Submission']
