@@ -11,6 +11,7 @@ export const db = {
   submitters: [] as Submitter[],
   submissions: [] as Submission[],
   authUsers: [] as AuthUserRecord[],
+  tokens: new Set<string>(),
 }
 
 // Seed Data

@@ -27,6 +27,9 @@ export function resolveToken(request: Request): AuthUser | null {
     return null
   }
 
+  if (!db.tokens.has(token))
+    return null
+
   const userRecord = db.authUsers.find(u => u.id === userId)
   if (!userRecord)
     return null
@@ -50,12 +53,19 @@ export const authHandlers = [
       }
 
       const { password: _, ...user } = userRecord
-      const response: AuthResponse = { token: createToken(user.id), user }
+      const token = createToken(user.id)
+      db.tokens.add(token)
+      const response: AuthResponse = { token, user }
       return HttpResponse.json(response)
     },
   ),
 
-  http.post('/api/auth/logout', () => {
+  http.post('/api/auth/logout', ({ request }) => {
+    const prefix = 'Bearer '
+    const authHeader = request.headers.get('Authorization')
+    if (authHeader?.startsWith(prefix)) {
+      db.tokens.delete(authHeader.slice(prefix.length))
+    }
     return new HttpResponse(null, { status: 204 })
   }),
 
