@@ -1,7 +1,7 @@
 import type { components } from '@/api/schema'
 import { http, HttpResponse } from 'msw'
-import createId from '../createId'
 import { db } from '../db'
+import createId from '../utils/createId'
 
 export const submissionHandlers = [
   http.post('/api/submissions/batch-review', async ({ request }) => {
