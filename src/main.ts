@@ -1,3 +1,4 @@
+import { VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 
 import { createApp } from 'vue'
@@ -20,8 +21,10 @@ async function main() {
 
   const app = createApp(App)
   const pinia = createPinia()
+
   app.use(pinia)
   app.use(router)
+  app.use(VueQueryPlugin, { enableDevtoolsV6Plugin: true })
 
   await useAuthStore(pinia).fetchMe()
 
