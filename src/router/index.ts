@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
@@ -17,7 +18,20 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
     },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
+    },
+
   ],
+})
+
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+  if (authStore.isAuthenticated && to.name === 'login') {
+    return { name: 'home' }
+  }
 })
 
 export default router
