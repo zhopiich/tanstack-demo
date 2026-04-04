@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.96.2",
+    "@tanstack/vue-table": "^8.21.3",
     "openapi-fetch": "^0.17.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.31",
