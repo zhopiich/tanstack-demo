@@ -41,15 +41,15 @@ export function useSubmissionForm(id?: string) {
 
   const { data: submissionData } = useSubmission(computed(() => id))
   watch(submissionData, (newData) => {
-    if (newData?.data) {
-      const s = newData.data
-      Object.assign(form, {
-        title: s.title,
-        type: s.type,
-        tags: [...s.tags],
-        content: { ...s.content },
-      })
-    }
+    if (!newData)
+      return
+    const s = newData
+    Object.assign(form, {
+      title: s.title,
+      type: s.type,
+      tags: [...s.tags],
+      content: { ...s.content },
+    })
   }, { immediate: true })
 
   watch(() => form.type, (newType) => {
