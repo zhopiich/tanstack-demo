@@ -147,13 +147,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useSubmissionForm } from '../composables/useSubmissionForm'
 
+const router = useRouter()
 const route = useRoute()
 const id = computed(() => route.params.id as string | undefined)
 
-const { form, errors, isPending, isCreatingNew, submit } = useSubmissionForm(id.value)
+async function onSuccess(): Promise<void> {
+  await router.push({ name: 'submissions' })
+}
+
+const { form, errors, isPending, isCreatingNew, submit } = useSubmissionForm({ id, onSuccess })
 
 const tagsInput = computed({
   get: () => form.tags.join(', '),
