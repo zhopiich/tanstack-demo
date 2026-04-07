@@ -61,7 +61,7 @@ import type { SubmissionFilters } from '../queries/keys'
 import type { components } from '@/api/schema'
 import { createColumnHelper, FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, reactive } from 'vue'
-import { useSubmissions } from '@/queries/useSubmissions'
+import { useSubmissions } from '../queries/useSubmissions'
 
 type Submission = components['schemas']['Submission']
 
