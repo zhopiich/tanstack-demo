@@ -3,8 +3,8 @@ import type { Submission } from '@/schemas/submission'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, toValue } from 'vue'
 import { apiClient } from '@/api/client'
-import { submissionKeys } from '@/queries/keys'
 import { useFindInQueryCache } from '../composables/useFindInQueryCache'
+import { submissionKeys } from './keys'
 
 export function useSubmission(id: MaybeRefOrGetter<string | undefined>) {
   const precached = useFindInQueryCache<Submission>(submissionKeys.lists(), id)
