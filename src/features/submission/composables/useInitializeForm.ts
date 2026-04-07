@@ -1,5 +1,5 @@
 import type { MaybeRefOrGetter } from 'vue'
-import type { Submission, SubmissionCreateForm } from '@/schemas/submission'
+import type { Submission, SubmissionCreateForm } from '../schemas/submission'
 import { watch } from 'vue'
 import { useSubmission } from '@/features/submission/queries/useSubmission'
 

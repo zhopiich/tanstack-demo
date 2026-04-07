@@ -1,7 +1,7 @@
-import type { SubmissionCreateForm, SubmissionUpdateForm } from '@/schemas/submission'
+import type { SubmissionCreateForm, SubmissionUpdateForm } from '../schemas/submission'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { apiClient } from '@/api/client'
-import { submissionKeys } from '@/queries/keys'
+import { submissionKeys } from './keys'
 
 export function useCreateSubmission() {
   const queryClient = useQueryClient()
