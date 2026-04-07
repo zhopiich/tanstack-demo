@@ -1,5 +1,5 @@
 import type { MaybeRefOrGetter } from 'vue'
-import type { Submission } from '@/schemas/submission'
+import type { Submission } from '../schemas/submission'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, toValue } from 'vue'
 import { apiClient } from '@/api/client'

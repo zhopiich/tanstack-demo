@@ -1,5 +1,6 @@
 import type { MaybeRefOrGetter } from 'vue'
-import type { Content, SubmissionCreateForm, SubmissionType } from '@/schemas/submission'
+import type { Content, SubmissionCreateForm } from '../schemas/submission'
+import type { SubmissionType } from '@/schemas/submission'
 import { computed, reactive, toValue, watch } from 'vue'
 import { useInitializeForm } from './useInitializeForm'
 import { useSubmitForm } from './useSubmitForm'
