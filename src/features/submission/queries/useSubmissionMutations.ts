@@ -38,3 +38,21 @@ export function useUpdateSubmission() {
     },
   })
 }
+
+export function useDeleteSubmission() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await apiClient.DELETE('/submissions/{id}', {
+        params: { path: { id } },
+      })
+      if (error)
+        throw error
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: submissionKeys.lists() })
+      queryClient.removeQueries({ queryKey: submissionKeys.detail(id) })
+    },
+  })
+}
