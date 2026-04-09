@@ -11,6 +11,33 @@
         Loading…
       </p>
 
+      <div v-if="selectedIds.length > 0">
+        <span>{{ selectedIds.length }} selected</span>
+
+        <template v-if="batchReviewVerdict === null">
+          <button @click="batchReviewVerdict = 'approve'">
+            Approve
+          </button>
+          <button @click="batchReviewVerdict = 'reject'">
+            Reject
+          </button>
+        </template>
+
+        <template v-else>
+          <input
+            v-model="reason"
+            type="text"
+            placeholder="Reason (min 10 characters)"
+          >
+          <p v-if="reasonError">
+            {{ reasonError }}
+          </p>
+          <button @click="cancelBatchReview">
+            Cancel
+          </button>
+        </template>
+      </div>
+
       <table v-if="!isPending">
         <thead>
           <tr>
@@ -73,6 +100,17 @@ const submissions = computed(() => data.value?.data ?? [])
 const paginationMeta = computed(() => data.value?.pagination)
 
 const rowSelection = ref<RowSelectionState>({})
+const selectedIds = computed(() => Object.keys(rowSelection.value).filter(id => rowSelection.value[id]))
+
+const batchReviewVerdict = ref<'approve' | 'reject' | null>(null)
+const reason = ref('')
+const reasonError = ref('')
+
+function cancelBatchReview() {
+  batchReviewVerdict.value = null
+  reason.value = ''
+  reasonError.value = ''
+}
 
 const columnHelper = createColumnHelper<Submission>()
 
