@@ -1,4 +1,4 @@
-import type { SubmissionCreateForm, SubmissionUpdateForm } from '../schemas/submission'
+import type { BatchDeleteForm, BatchReviewForm, SubmissionCreateForm, SubmissionUpdateForm } from '../schemas/submission'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { apiClient } from '@/api/client'
 import { submissionKeys } from './keys'
@@ -53,6 +53,41 @@ export function useDeleteSubmission() {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: submissionKeys.lists() })
       queryClient.removeQueries({ queryKey: submissionKeys.detail(id) })
+    },
+  })
+}
+
+export function useBatchReview() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (body: BatchReviewForm) => {
+      const { data, error } = await apiClient.POST('/submissions/batch-review', { body })
+      if (error)
+        throw error
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: submissionKeys.lists() })
+    },
+  })
+}
+
+export function useBatchDelete() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (body: BatchDeleteForm) => {
+      const { data, error } = await apiClient.POST('/submissions/batch-delete', { body })
+      if (error)
+        throw error
+      return data
+    },
+    onSuccess: (_, { ids }) => {
+      queryClient.invalidateQueries({ queryKey: submissionKeys.lists() })
+      for (const id of ids) {
+        queryClient.removeQueries({ queryKey: submissionKeys.detail(id) })
+      }
     },
   })
 }

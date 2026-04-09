@@ -11,6 +11,39 @@
         Loading…
       </p>
 
+      <div v-if="selectedIds.length > 0">
+        <span>{{ selectedIds.length }} selected</span>
+
+        <template v-if="batchReviewVerdict === null">
+          <button @click="batchReviewVerdict = 'approve'">
+            Approve
+          </button>
+          <button @click="batchReviewVerdict = 'reject'">
+            Reject
+          </button>
+          <button :disabled="isBatchDeleting" @click="handleBatchDelete">
+            Delete
+          </button>
+        </template>
+
+        <template v-else>
+          <input
+            v-model="reason"
+            type="text"
+            placeholder="Reason (min 10 characters)"
+          >
+          <p v-if="reasonError">
+            {{ reasonError }}
+          </p>
+          <button :disabled="isBatchReviewing" @click="handleBatchReview">
+            {{ isBatchReviewing ? 'Submitting…' : `Confirm ${batchReviewVerdict}` }}
+          </button>
+          <button @click="cancelBatchReview">
+            Cancel
+          </button>
+        </template>
+      </div>
+
       <table v-if="!isPending">
         <thead>
           <tr>
@@ -56,12 +89,14 @@
 </template>
 
 <script setup lang="ts">
-import type { SortingState } from '@tanstack/vue-table'
+import type { RowSelectionState, SortingState } from '@tanstack/vue-table'
 import type { SubmissionFilters } from '../queries/keys'
 import type { components } from '@/api/schema'
 import { createColumnHelper, FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { computed, reactive } from 'vue'
+import { computed, h, nextTick, reactive, ref, watch } from 'vue'
+import { useBatchDelete, useBatchReview } from '../queries/useSubmissionMutations'
 import { useSubmissions } from '../queries/useSubmissions'
+import { BatchReviewFormSchema } from '../schemas/submission'
 
 type Submission = components['schemas']['Submission']
 
@@ -72,9 +107,86 @@ const { data, isFetching, isPending, isError } = useSubmissions(() => ({ ...filt
 const submissions = computed(() => data.value?.data ?? [])
 const paginationMeta = computed(() => data.value?.pagination)
 
+const rowSelection = ref<RowSelectionState>({})
+const selectedIds = computed(() => Object.keys(rowSelection.value).filter(id => rowSelection.value[id]))
+
+const batchReviewVerdict = ref<'approve' | 'reject' | null>(null)
+const reason = ref('')
+const reasonError = ref('')
+
+function cancelBatchReview() {
+  batchReviewVerdict.value = null
+  reason.value = ''
+  reasonError.value = ''
+}
+
+const { mutate: batchReview, isPending: isBatchReviewing } = useBatchReview()
+const { mutate: batchDelete, isPending: isBatchDeleting } = useBatchDelete()
+
+const isMutationInternalReset = ref(false)
+function resetOnSuccess(callback?: () => void) {
+  isMutationInternalReset.value = true
+  callback?.()
+  nextTick(() => isMutationInternalReset.value = false)
+}
+
+// Cancel review mutate when row selection is all cleared
+watch(rowSelection, (newVal) => {
+  // Prevent mutate onSuccess from re-triggering cancelBatchReview
+  // when rowSelection is reset to empty.
+  if (isMutationInternalReset.value)
+    return
+  if (Object.keys(newVal).length === 0)
+    cancelBatchReview()
+}, { deep: true })
+
+function handleBatchReview() {
+  reasonError.value = ''
+  const result = BatchReviewFormSchema.shape.reason.safeParse(reason.value)
+  if (!result.success) {
+    reasonError.value = result.error.issues[0]?.message ?? 'Invalid reason'
+    return
+  }
+  batchReview(
+    { ids: selectedIds.value, verdict: batchReviewVerdict.value === 'approve' ? 'approved' : 'rejected', reason: reason.value },
+    { onSuccess: () => {
+      resetOnSuccess(() => {
+        rowSelection.value = {}
+        batchReviewVerdict.value = null
+        reason.value = ''
+      })
+    } },
+  )
+}
+
+// TODO: confirm with modal
+function handleBatchDelete() {
+  batchDelete(
+    { ids: selectedIds.value },
+    { onSuccess: () => {
+      resetOnSuccess(() => rowSelection.value = {})
+    } },
+  )
+}
+
 const columnHelper = createColumnHelper<Submission>()
 
 const columns = [
+  columnHelper.display({
+    id: 'select',
+    header: ({ table }) => h('input', {
+      type: 'checkbox',
+      checked: table.getIsAllPageRowsSelected(),
+      indeterminate: table.getIsSomePageRowsSelected(),
+      onChange: table.getToggleAllPageRowsSelectedHandler(),
+    }),
+    cell: ({ row }) => h('input', {
+      type: 'checkbox',
+      checked: row.getIsSelected(),
+      disabled: !row.getCanSelect(),
+      onChange: row.getToggleSelectedHandler(),
+    }),
+  }),
   columnHelper.accessor('title', { header: 'Title', enableSorting: false }),
   columnHelper.accessor('type', { header: 'Type', enableSorting: false }),
   columnHelper.accessor('status', { header: 'Status', enableSorting: false }),
@@ -99,6 +211,8 @@ const table = useVueTable({
   get data() { return submissions.value },
   columns,
   getCoreRowModel: getCoreRowModel(),
+  enableRowSelection: true,
+  getRowId: row => row.id,
   manualPagination: true,
   manualSorting: true,
   get pageCount() { return paginationMeta.value?.totalPages ?? -1 },
@@ -107,6 +221,7 @@ const table = useVueTable({
     get pagination() {
       return { pageIndex: (filters.page ?? 1) - 1, pageSize: filters.pageSize ?? 10 }
     },
+    get rowSelection() { return rowSelection.value },
   },
   onSortingChange: (updater) => {
     const next = typeof updater === 'function' ? updater(sorting.value) : updater
@@ -126,6 +241,9 @@ const table = useVueTable({
     const next = typeof updater === 'function' ? updater(current) : updater
     filters.page = next.pageIndex + 1
     filters.pageSize = next.pageSize
+  },
+  onRowSelectionChange: (updater) => {
+    rowSelection.value = typeof updater === 'function' ? updater(rowSelection.value) : updater
   },
 })
 </script>
