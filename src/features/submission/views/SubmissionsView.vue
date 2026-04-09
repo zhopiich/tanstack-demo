@@ -56,11 +56,11 @@
 </template>
 
 <script setup lang="ts">
-import type { SortingState } from '@tanstack/vue-table'
+import type { RowSelectionState, SortingState } from '@tanstack/vue-table'
 import type { SubmissionFilters } from '../queries/keys'
 import type { components } from '@/api/schema'
 import { createColumnHelper, FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useSubmissions } from '../queries/useSubmissions'
 
 type Submission = components['schemas']['Submission']
@@ -71,6 +71,8 @@ const { data, isFetching, isPending, isError } = useSubmissions(() => ({ ...filt
 
 const submissions = computed(() => data.value?.data ?? [])
 const paginationMeta = computed(() => data.value?.pagination)
+
+const rowSelection = ref<RowSelectionState>({})
 
 const columnHelper = createColumnHelper<Submission>()
 
@@ -99,6 +101,8 @@ const table = useVueTable({
   get data() { return submissions.value },
   columns,
   getCoreRowModel: getCoreRowModel(),
+  enableRowSelection: true,
+  getRowId: row => row.id,
   manualPagination: true,
   manualSorting: true,
   get pageCount() { return paginationMeta.value?.totalPages ?? -1 },
@@ -107,6 +111,7 @@ const table = useVueTable({
     get pagination() {
       return { pageIndex: (filters.page ?? 1) - 1, pageSize: filters.pageSize ?? 10 }
     },
+    get rowSelection() { return rowSelection.value },
   },
   onSortingChange: (updater) => {
     const next = typeof updater === 'function' ? updater(sorting.value) : updater
@@ -126,6 +131,9 @@ const table = useVueTable({
     const next = typeof updater === 'function' ? updater(current) : updater
     filters.page = next.pageIndex + 1
     filters.pageSize = next.pageSize
+  },
+  onRowSelectionChange: (updater) => {
+    rowSelection.value = typeof updater === 'function' ? updater(rowSelection.value) : updater
   },
 })
 </script>
