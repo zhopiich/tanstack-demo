@@ -21,6 +21,9 @@
           <button @click="batchReviewVerdict = 'reject'">
             Reject
           </button>
+          <button :disabled="isBatchDeleting" @click="handleBatchDelete">
+            Delete
+          </button>
         </template>
 
         <template v-else>
@@ -32,6 +35,9 @@
           <p v-if="reasonError">
             {{ reasonError }}
           </p>
+          <button :disabled="isBatchReviewing" @click="handleBatchReview">
+            {{ isBatchReviewing ? 'Submitting…' : `Confirm ${batchReviewVerdict}` }}
+          </button>
           <button @click="cancelBatchReview">
             Cancel
           </button>
@@ -88,7 +94,9 @@ import type { SubmissionFilters } from '../queries/keys'
 import type { components } from '@/api/schema'
 import { createColumnHelper, FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h, reactive, ref } from 'vue'
+import { useBatchDelete, useBatchReview } from '../queries/useSubmissionMutations'
 import { useSubmissions } from '../queries/useSubmissions'
+import { BatchReviewFormSchema } from '../schemas/submission'
 
 type Submission = components['schemas']['Submission']
 
@@ -110,6 +118,40 @@ function cancelBatchReview() {
   batchReviewVerdict.value = null
   reason.value = ''
   reasonError.value = ''
+}
+
+const { mutate: batchReview, isPending: isBatchReviewing } = useBatchReview()
+const { mutate: batchDelete, isPending: isBatchDeleting } = useBatchDelete()
+
+function handleBatchReview() {
+  reasonError.value = ''
+  const result = BatchReviewFormSchema.shape.reason.safeParse(reason.value)
+  if (!result.success) {
+    reasonError.value = result.error.issues[0]?.message ?? 'Invalid reason'
+    return
+  }
+  batchReview(
+    { ids: selectedIds.value, verdict: batchReviewVerdict.value === 'approve' ? 'approved' : 'rejected', reason: reason.value },
+    {
+      onSuccess: () => {
+        rowSelection.value = {}
+        batchReviewVerdict.value = null
+        reason.value = ''
+      },
+    },
+  )
+}
+
+// TODO: confirm with modal
+function handleBatchDelete() {
+  batchDelete(
+    { ids: selectedIds.value },
+    {
+      onSuccess: () => {
+        rowSelection.value = {}
+      },
+    },
+  )
 }
 
 const columnHelper = createColumnHelper<Submission>()
