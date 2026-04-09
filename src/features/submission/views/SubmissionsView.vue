@@ -93,7 +93,7 @@ import type { RowSelectionState, SortingState } from '@tanstack/vue-table'
 import type { SubmissionFilters } from '../queries/keys'
 import type { components } from '@/api/schema'
 import { createColumnHelper, FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { computed, h, reactive, ref } from 'vue'
+import { computed, h, nextTick, reactive, ref, watch } from 'vue'
 import { useBatchDelete, useBatchReview } from '../queries/useSubmissionMutations'
 import { useSubmissions } from '../queries/useSubmissions'
 import { BatchReviewFormSchema } from '../schemas/submission'
@@ -123,6 +123,23 @@ function cancelBatchReview() {
 const { mutate: batchReview, isPending: isBatchReviewing } = useBatchReview()
 const { mutate: batchDelete, isPending: isBatchDeleting } = useBatchDelete()
 
+const isMutationInternalReset = ref(false)
+function resetOnSuccess(callback?: () => void) {
+  isMutationInternalReset.value = true
+  callback?.()
+  nextTick(() => isMutationInternalReset.value = false)
+}
+
+// Cancel review mutate when row selection is all cleared
+watch(rowSelection, (newVal) => {
+  // Prevent mutate onSuccess from re-triggering cancelBatchReview
+  // when rowSelection is reset to empty.
+  if (isMutationInternalReset.value)
+    return
+  if (Object.keys(newVal).length === 0)
+    cancelBatchReview()
+}, { deep: true })
+
 function handleBatchReview() {
   reasonError.value = ''
   const result = BatchReviewFormSchema.shape.reason.safeParse(reason.value)
@@ -132,13 +149,13 @@ function handleBatchReview() {
   }
   batchReview(
     { ids: selectedIds.value, verdict: batchReviewVerdict.value === 'approve' ? 'approved' : 'rejected', reason: reason.value },
-    {
-      onSuccess: () => {
+    { onSuccess: () => {
+      resetOnSuccess(() => {
         rowSelection.value = {}
         batchReviewVerdict.value = null
         reason.value = ''
-      },
-    },
+      })
+    } },
   )
 }
 
@@ -146,11 +163,9 @@ function handleBatchReview() {
 function handleBatchDelete() {
   batchDelete(
     { ids: selectedIds.value },
-    {
-      onSuccess: () => {
-        rowSelection.value = {}
-      },
-    },
+    { onSuccess: () => {
+      resetOnSuccess(() => rowSelection.value = {})
+    } },
   )
 }
 
