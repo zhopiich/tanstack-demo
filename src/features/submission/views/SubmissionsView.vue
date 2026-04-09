@@ -60,7 +60,7 @@ import type { RowSelectionState, SortingState } from '@tanstack/vue-table'
 import type { SubmissionFilters } from '../queries/keys'
 import type { components } from '@/api/schema'
 import { createColumnHelper, FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { computed, reactive, ref } from 'vue'
+import { computed, h, reactive, ref } from 'vue'
 import { useSubmissions } from '../queries/useSubmissions'
 
 type Submission = components['schemas']['Submission']
@@ -77,6 +77,21 @@ const rowSelection = ref<RowSelectionState>({})
 const columnHelper = createColumnHelper<Submission>()
 
 const columns = [
+  columnHelper.display({
+    id: 'select',
+    header: ({ table }) => h('input', {
+      type: 'checkbox',
+      checked: table.getIsAllPageRowsSelected(),
+      indeterminate: table.getIsSomePageRowsSelected(),
+      onChange: table.getToggleAllPageRowsSelectedHandler(),
+    }),
+    cell: ({ row }) => h('input', {
+      type: 'checkbox',
+      checked: row.getIsSelected(),
+      disabled: !row.getCanSelect(),
+      onChange: row.getToggleSelectedHandler(),
+    }),
+  }),
   columnHelper.accessor('title', { header: 'Title', enableSorting: false }),
   columnHelper.accessor('type', { header: 'Type', enableSorting: false }),
   columnHelper.accessor('status', { header: 'Status', enableSorting: false }),
