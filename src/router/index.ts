@@ -36,7 +36,7 @@ const router = createRouter({
     {
       path: '/submissions/:id',
       name: 'submission-detail',
-      component: () => import('@/features/submission/views/SubmissionDetailView.vue'),
+      component: () => import('@/features/submission/views/SubmissionDetailView/index.vue'),
     },
     {
       path: '/submissions/:id/edit',
