@@ -148,7 +148,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSubmissionForm } from '../composables/useSubmissionForm'
+import { useSubmissionForm } from './useSubmissionForm'
 
 const router = useRouter()
 const route = useRoute()

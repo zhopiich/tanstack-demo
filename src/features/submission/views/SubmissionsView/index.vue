@@ -90,13 +90,13 @@
 
 <script setup lang="ts">
 import type { RowSelectionState, SortingState } from '@tanstack/vue-table'
-import type { SubmissionFilters } from '../queries/keys'
+import type { SubmissionFilters } from '../../queries/keys'
 import type { components } from '@/api/schema'
 import { createColumnHelper, FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h, nextTick, reactive, ref, watch } from 'vue'
-import { useBatchDelete, useBatchReview } from '../queries/useSubmissionMutations'
-import { useSubmissions } from '../queries/useSubmissions'
-import { BatchReviewFormSchema } from '../schemas/submission'
+import { useBatchDelete, useBatchReview } from '../../queries/useSubmissionMutations'
+import { useSubmissions } from '../../queries/useSubmissions'
+import { BatchReviewFormSchema } from '../../schemas/submission'
 
 type Submission = components['schemas']['Submission']
 

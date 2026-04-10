@@ -74,8 +74,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSubmission } from '../queries/useSubmission'
-import { useDeleteSubmission } from '../queries/useSubmissionMutations'
+import { useSubmission } from '../../queries/useSubmission'
+import { useDeleteSubmission } from '../../queries/useSubmissionMutations'
 
 const route = useRoute()
 const router = useRouter()

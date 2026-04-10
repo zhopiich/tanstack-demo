@@ -1,12 +1,12 @@
 import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 import type { ZodError } from 'zod'
-import type { SubmissionCreateForm } from '../schemas/submission'
+import type { SubmissionCreateForm } from '../../schemas/submission'
 import { computed, ref, toValue } from 'vue'
 import {
   useCreateSubmission,
   useUpdateSubmission,
 } from '@/features/submission/queries/useSubmissionMutations'
-import { SubmissionCreateFormSchema, SubmissionUpdateFormSchema } from '../schemas/submission'
+import { SubmissionCreateFormSchema, SubmissionUpdateFormSchema } from '../../schemas/submission'
 
 function flattenErrors(error: ZodError): Record<string, string> {
   const flat: Record<string, string> = {}
