@@ -89,16 +89,13 @@
 </template>
 
 <script setup lang="ts">
-import type { RowSelectionState } from '@tanstack/vue-table'
 import { FlexRender } from '@tanstack/vue-table'
-import { computed, nextTick, ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useBatchDelete, useBatchReview } from '../../queries/useSubmissionMutations'
 import { BatchReviewFormSchema } from '../../schemas/submission'
+import { useSubmissionRowSelection } from './useSubmissionRowSelection'
 import { useSubmissionsQuery } from './useSubmissionsQuery'
 import { useSubmissionsTable } from './useSubmissionsTable'
-
-const rowSelection = ref<RowSelectionState>({})
-const selectedIds = computed(() => Object.keys(rowSelection.value).filter(id => rowSelection.value[id]))
 
 const batchReviewVerdict = ref<'approve' | 'reject' | null>(null)
 const reason = ref('')
@@ -110,25 +107,10 @@ function cancelBatchReview() {
   reasonError.value = ''
 }
 
+const { rowSelection, selectedIds, resetOnSuccess } = useSubmissionRowSelection(cancelBatchReview)
+
 const { mutate: batchReview, isPending: isBatchReviewing } = useBatchReview()
 const { mutate: batchDelete, isPending: isBatchDeleting } = useBatchDelete()
-
-const isMutationInternalReset = ref(false)
-function resetOnSuccess(callback?: () => void) {
-  isMutationInternalReset.value = true
-  callback?.()
-  nextTick(() => isMutationInternalReset.value = false)
-}
-
-// Cancel review mutate when row selection is all cleared
-watch(rowSelection, (newVal) => {
-  // Prevent mutate onSuccess from re-triggering cancelBatchReview
-  // when rowSelection is reset to empty.
-  if (isMutationInternalReset.value)
-    return
-  if (Object.keys(newVal).length === 0)
-    cancelBatchReview()
-}, { deep: true })
 
 function handleBatchReview() {
   reasonError.value = ''
