@@ -1,12 +1,11 @@
 import type { RowSelectionState } from '@tanstack/vue-table'
-import { computed, nextTick, ref, watch } from 'vue'
+import type { Ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
-export function useSubmissionRowSelection(onSelectionCleared?: () => void) {
-  const rowSelection = ref<RowSelectionState>({})
-  const selectedIds = computed(() =>
-    Object.keys(rowSelection.value).filter(id => rowSelection.value[id]),
-  )
-
+export function useRowSelectionReset<T extends Record<string, unknown> = RowSelectionState>(
+  rowSelection: Ref<T>,
+  onSelectionCleared?: () => void,
+) {
   // Internal flag to suppress the watcher during programmatic resets triggered
   // by mutation success callbacks.
   const isMutationInternalReset = ref(false)
@@ -26,5 +25,5 @@ export function useSubmissionRowSelection(onSelectionCleared?: () => void) {
     nextTick(() => (isMutationInternalReset.value = false))
   }
 
-  return { rowSelection, selectedIds, resetOnSuccess }
+  return { resetOnSuccess }
 }
