@@ -46,20 +46,18 @@
 
       <SubmissionsTable v-if="!isPending" :table="table" />
 
-      <div v-if="paginationMeta">
-        <button :disabled="!table.getCanPreviousPage()" @click="table.previousPage()">
-          Prev
-        </button>
-        <span>Page {{ paginationMeta.page }} / {{ paginationMeta.totalPages }}</span>
-        <button :disabled="!table.getCanNextPage()" @click="table.nextPage()">
-          Next
-        </button>
-      </div>
+      <SubmissionsPagination
+        v-if="paginationMeta"
+        :table="table"
+        :page="paginationMeta.page"
+        :total-pages="paginationMeta.totalPages"
+      />
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import SubmissionsPagination from './components/SubmissionsPagination.vue'
 import SubmissionsTable from './components/SubmissionsTable.vue'
 import { useSubmissionBatchActions } from './useSubmissionBatchActions'
 import { useSubmissionsQuery } from './useSubmissionsQuery'
