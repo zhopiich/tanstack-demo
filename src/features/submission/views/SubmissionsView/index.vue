@@ -90,20 +90,12 @@
 
 <script setup lang="ts">
 import type { RowSelectionState } from '@tanstack/vue-table'
-import type { SubmissionFilters } from '../../queries/keys'
 import { FlexRender } from '@tanstack/vue-table'
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useBatchDelete, useBatchReview } from '../../queries/useSubmissionMutations'
-import { useSubmissions } from '../../queries/useSubmissions'
 import { BatchReviewFormSchema } from '../../schemas/submission'
+import { useSubmissionsQuery } from './useSubmissionsQuery'
 import { useSubmissionsTable } from './useSubmissionsTable'
-
-const filters = reactive<SubmissionFilters>({ page: 1, pageSize: 10 })
-
-const { data, isFetching, isPending, isError } = useSubmissions(() => ({ ...filters }))
-
-const submissions = computed(() => data.value?.data ?? [])
-const paginationMeta = computed(() => data.value?.pagination)
 
 const rowSelection = ref<RowSelectionState>({})
 const selectedIds = computed(() => Object.keys(rowSelection.value).filter(id => rowSelection.value[id]))
@@ -167,5 +159,6 @@ function handleBatchDelete() {
   )
 }
 
+const { filters, submissions, paginationMeta, isFetching, isPending, isError } = useSubmissionsQuery()
 const { table } = useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection })
 </script>
