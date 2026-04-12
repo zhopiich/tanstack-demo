@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+import { useSharedRowSelection } from '../../composables/useRowSelection'
 import { BatchReviewFormSchema, useBatchDelete, useBatchReview } from '../../exports'
-import { useSharedRowSelection } from '../../useRowSelection'
 
 interface Options {
   onReviewSuccess?: () => void

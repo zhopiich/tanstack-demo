@@ -1,6 +1,6 @@
-import type { SubmissionFilters } from '../../queries/keys'
+import type { SubmissionFilters } from '../exports'
 import { computed, reactive } from 'vue'
-import { useSubmissions } from '../../queries/useSubmissions'
+import { useSubmissions } from '../exports'
 
 export function useSubmissionsQuery() {
   const filters = reactive<SubmissionFilters>({ page: 1, pageSize: 10 })

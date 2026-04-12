@@ -1,6 +1,6 @@
 import type { RowSelectionState, SortingState } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
-import type { SubmissionFilters } from '../../queries/keys'
+import type { SubmissionFilters } from '../exports'
 import type { components } from '@/api/schema'
 import type { Pagination } from '@/schemas/common'
 import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-table'

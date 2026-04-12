@@ -32,9 +32,9 @@
 import SubmissionBatchActionsBar from './components/SubmissionBatchActionsBar'
 import SubmissionsPagination from './components/SubmissionsPagination.vue'
 import SubmissionsTable from './components/SubmissionsTable.vue'
-import { useSharedRowSelection } from './useRowSelection'
-import { useSubmissionsQuery } from './useSubmissionsQuery'
-import { useSubmissionsTable } from './useSubmissionsTable'
+import { useSharedRowSelection } from './composables/useRowSelection'
+import { useSubmissionsQuery } from './composables/useSubmissionsQuery'
+import { useSubmissionsTable } from './composables/useSubmissionsTable'
 
 const { selectedIds, rowSelection } = useSharedRowSelection()
 
