@@ -11,38 +11,10 @@
         Loading…
       </p>
 
-      <div v-if="selectedIds.length > 0">
-        <span>{{ selectedIds.length }} selected</span>
-
-        <template v-if="batchReviewVerdict === null">
-          <button @click="batchReviewVerdict = 'approve'">
-            Approve
-          </button>
-          <button @click="batchReviewVerdict = 'reject'">
-            Reject
-          </button>
-          <button :disabled="isBatchDeleting" @click="handleBatchDelete">
-            Delete
-          </button>
-        </template>
-
-        <template v-else>
-          <input
-            v-model="reason"
-            type="text"
-            placeholder="Reason (min 10 characters)"
-          >
-          <p v-if="reasonError">
-            {{ reasonError }}
-          </p>
-          <button :disabled="isBatchReviewing" @click="handleBatchReview">
-            {{ isBatchReviewing ? 'Submitting…' : `Confirm ${batchReviewVerdict}` }}
-          </button>
-          <button @click="cancelBatchReview">
-            Cancel
-          </button>
-        </template>
-      </div>
+      <SubmissionBatchActionsBar
+        v-if="selectedIds.length > 0"
+        :selected-ids-length="selectedIds.length"
+      />
 
       <SubmissionsTable v-if="!isPending" :table="table" />
 
@@ -57,24 +29,14 @@
 </template>
 
 <script setup lang="ts">
+import SubmissionBatchActionsBar from './components/SubmissionBatchActionsBar'
 import SubmissionsPagination from './components/SubmissionsPagination.vue'
 import SubmissionsTable from './components/SubmissionsTable.vue'
-import { useSubmissionBatchActions } from './useSubmissionBatchActions'
+import { useSharedRowSelection } from './useRowSelection'
 import { useSubmissionsQuery } from './useSubmissionsQuery'
 import { useSubmissionsTable } from './useSubmissionsTable'
 
-const {
-  rowSelection,
-  selectedIds,
-  batchReviewVerdict,
-  reason,
-  reasonError,
-  isBatchReviewing,
-  isBatchDeleting,
-  handleBatchReview,
-  handleBatchDelete,
-  cancelBatchReview,
-} = useSubmissionBatchActions()
+const { selectedIds, rowSelection } = useSharedRowSelection()
 
 const { filters, submissions, paginationMeta, isFetching, isPending, isError } = useSubmissionsQuery()
 
