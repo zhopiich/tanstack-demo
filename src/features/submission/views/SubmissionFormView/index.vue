@@ -138,6 +138,14 @@
         </template>
       </fieldset>
 
+      <div v-if="isCreatingNew">
+        <label for="submitterEmail">Submitter Email (optional)</label>
+        <input id="submitterEmail" v-model="form.submitterEmail" type="email">
+        <p v-if="errors.submitterEmail">
+          {{ errors.submitterEmail }}
+        </p>
+      </div>
+
       <button type="submit" :disabled="isPending">
         {{ isPending ? 'Saving…' : isCreatingNew ? 'Create' : 'Save Changes' }}
       </button>

@@ -56,10 +56,11 @@
         <h2>Review</h2>
         <p>Verdict: {{ submission.review.verdict }}</p>
         <p>Reason: {{ submission.review.reason }}</p>
+        <p>Reviewer: {{ submission.review.reviewer.name }} ({{ submission.review.reviewer.email }})</p>
         <p>Reviewed: {{ new Date(submission.review.reviewedAt).toLocaleString() }}</p>
       </section>
 
-      <div>
+      <div v-if="authStore.role === 'admin'">
         <router-link :to="`/submissions/${submission.id}/edit`">
           Edit
         </router-link>
@@ -74,8 +75,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { useSubmission } from '../../queries/useSubmission'
 import { useDeleteSubmission } from '../../queries/useSubmissionMutations'
+
+const authStore = useAuthStore()
 
 const route = useRoute()
 const router = useRouter()

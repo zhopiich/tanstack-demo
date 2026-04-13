@@ -2,6 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import HomeView from '../views/HomeView.vue'
 
+declare module 'vue-router' {
+  interface RouteMeta {
+    requiresAdmin?: boolean
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -32,6 +38,7 @@ const router = createRouter({
       path: '/submissions/new',
       name: 'submission-create',
       component: () => import('@/features/submission/views/SubmissionFormView/index.vue'),
+      meta: { requiresAdmin: true },
     },
     {
       path: '/submissions/:id',
@@ -42,6 +49,7 @@ const router = createRouter({
       path: '/submissions/:id/edit',
       name: 'submission-edit',
       component: () => import('@/features/submission/views/SubmissionFormView/index.vue'),
+      meta: { requiresAdmin: true },
     },
 
   ],
@@ -51,6 +59,10 @@ router.beforeEach((to) => {
   const authStore = useAuthStore()
   if (authStore.isAuthenticated && to.name === 'login') {
     return { name: 'home' }
+  }
+  if (to.meta.requiresAdmin) {
+    if (!authStore.isAuthenticated) return { name: 'login' }
+    if (authStore.role !== 'admin') return { name: 'submissions' }
   }
 })
 

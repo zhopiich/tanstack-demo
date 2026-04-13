@@ -5,6 +5,8 @@ import type { components } from '@/api/schema'
 import type { Pagination } from '@/schemas/common'
 import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h } from 'vue'
+import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 type Submission = components['schemas']['Submission']
 const columnHelper = createColumnHelper<Submission>()
@@ -17,6 +19,8 @@ interface Params {
 }
 
 export function useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection }: Params) {
+  const authStore = useAuthStore()
+
   const columns = [
     columnHelper.display({
       id: 'select',
@@ -46,6 +50,19 @@ export function useSubmissionsTable({ submissions, paginationMeta, filters, rowS
       header: 'Created At',
       enableSorting: true,
       cell: info => new Date(info.getValue()).toLocaleDateString(),
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const id = row.original.id
+        const nodes = [h(RouterLink, { to: `/submissions/${id}` }, () => 'View')]
+        if (authStore.role === 'admin') {
+          nodes.push(h('span', ' | '))
+          nodes.push(h(RouterLink, { to: `/submissions/${id}/edit` }, () => 'Edit'))
+        }
+        return h('span', nodes)
+      },
     }),
   ]
 

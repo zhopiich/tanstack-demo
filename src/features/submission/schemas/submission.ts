@@ -88,7 +88,10 @@ export const ContentSchema = z.discriminatedUnion('type', [
 // Review
 
 export const ReviewSchema = z.object({
-  reviewerId: CuidSchema,
+  reviewer: z.object({
+    name: z.string(),
+    email: z.email(),
+  }),
   verdict: ReviewVerdictSchema,
   reason: z.string().min(10, 'Review must be at least 10 characters'),
   reviewedAt: z.iso.datetime(),
@@ -149,6 +152,7 @@ export const SubmissionCreateFormSchema = z.object({
   type: SubmissionTypeSchema,
   tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed'),
   content: ContentSchema,
+  submitterEmail: z.email('Invalid email').optional(),
 }) satisfies z.ZodType<SubmissionCreateForm>
 
 export const SubmissionUpdateFormSchema

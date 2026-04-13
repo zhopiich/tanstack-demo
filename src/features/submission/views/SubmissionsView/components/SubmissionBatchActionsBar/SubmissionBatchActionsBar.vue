@@ -9,7 +9,7 @@
       <button @click="verdict = 'reject'">
         Reject
       </button>
-      <button :disabled="isDeleting" @click="actions.handleBatchDelete">
+      <button v-if="authStore.role === 'admin'" :disabled="isDeleting" @click="actions.handleBatchDelete">
         Delete
       </button>
     </template>
@@ -35,7 +35,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import { useSubmissionBatchActions } from './useSubmissionBatchActions'
+
+const authStore = useAuthStore()
 
 defineProps<{ selectedIdsLength: number }>()
 

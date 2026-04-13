@@ -2,12 +2,14 @@ import type { components } from '@/api/schema'
 import { http, HttpResponse } from 'msw'
 import { db } from '../db'
 import createId from '../utils/createId'
+import { forbidden } from '../utils/forbidden'
 import { resolveToken } from '../utils/resolveToken'
 import { unauthorized } from '../utils/unauthorized'
 
 export const submissionHandlers = [
   http.post('/api/submissions/batch-review', async ({ request }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
     const body = await request.json() as components['schemas']['BatchReviewBody']
     let updatedCount = 0
@@ -23,7 +25,7 @@ export const submissionHandlers = [
         ...submission,
         status: body.verdict === 'approved' ? 'approved' : 'rejected',
         review: {
-          reviewerId: 'mock-reviewer',
+          reviewer: { name: user.name, email: user.email },
           verdict: body.verdict,
           reason: body.reason,
           reviewedAt,
@@ -37,8 +39,11 @@ export const submissionHandlers = [
   }),
 
   http.post('/api/submissions/batch-delete', async ({ request }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
     const body = await request.json() as components['schemas']['BatchDeleteBody']
     const idsSet = new Set(body.ids)
     const before = db.submissions.length
@@ -94,10 +99,17 @@ export const submissionHandlers = [
   }),
 
   http.post('/api/submissions', async ({ request }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
     const body = await request.json() as components['schemas']['SubmissionCreateBody']
-    const submitter = db.submitters[0]
+    const submitter = (
+      body.submitterEmail
+        ? db.submitters.find(s => s.email === body.submitterEmail)
+        : undefined
+    ) ?? db.submitters[Math.floor(Math.random() * db.submitters.length)]
     if (!submitter) {
       return HttpResponse.json(
         { error: { code: 'NOT_FOUND', message: 'Submitter not found' } },
@@ -135,8 +147,11 @@ export const submissionHandlers = [
   }),
 
   http.patch('/api/submissions/:id', async ({ request, params }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
     const index = db.submissions.findIndex(s => s.id === params.id)
     const submission = db.submissions[index]
     if (!submission) {
@@ -155,8 +170,11 @@ export const submissionHandlers = [
   }),
 
   http.delete('/api/submissions/:id', ({ request, params }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
     const index = db.submissions.findIndex(s => s.id === params.id)
     if (index === -1) {
       return HttpResponse.json(

@@ -556,7 +556,11 @@ export interface components {
         };
         Content: components["schemas"]["ArticleContent"] | components["schemas"]["VideoContent"] | components["schemas"]["ImageContent"] | components["schemas"]["LinkContent"];
         Review: {
-            reviewerId: string;
+            reviewer: {
+                name: string;
+                /** Format: email */
+                email: string;
+            };
             verdict: components["schemas"]["ReviewVerdict"];
             reason: string;
             /** Format: date-time */
@@ -583,6 +587,8 @@ export interface components {
             type: components["schemas"]["SubmissionType"];
             tags: string[];
             content: components["schemas"]["Content"];
+            /** Format: email */
+            submitterEmail?: string;
         };
         SubmissionUpdateBody: {
             title?: string;

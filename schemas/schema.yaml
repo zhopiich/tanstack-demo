@@ -199,11 +199,17 @@ components:
 
     Review:
       type: object
-      required: [reviewerId, verdict, reason, reviewedAt]
+      required: [reviewer, verdict, reason, reviewedAt]
       properties:
-        reviewerId:
-          type: string
-          pattern: '^c[a-z0-9]{24}$'
+        reviewer:
+          type: object
+          required: [name, email]
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+              format: email
         verdict:
           $ref: '#/components/schemas/ReviewVerdict'
         reason:
@@ -288,6 +294,9 @@ components:
           maxItems: 5
         content:
           $ref: '#/components/schemas/Content'
+        submitterEmail:
+          type: string
+          format: email
 
     SubmissionUpdateBody:
       type: object
