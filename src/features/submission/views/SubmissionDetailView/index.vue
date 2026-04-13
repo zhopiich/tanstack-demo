@@ -56,6 +56,7 @@
         <h2>Review</h2>
         <p>Verdict: {{ submission.review.verdict }}</p>
         <p>Reason: {{ submission.review.reason }}</p>
+        <p>Reviewer: {{ submission.review.reviewer.name }} ({{ submission.review.reviewer.email }})</p>
         <p>Reviewed: {{ new Date(submission.review.reviewedAt).toLocaleString() }}</p>
       </section>
 
