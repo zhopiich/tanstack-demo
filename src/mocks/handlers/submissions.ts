@@ -104,7 +104,11 @@ export const submissionHandlers = [
     if (user.role !== 'admin')
       return forbidden()
     const body = await request.json() as components['schemas']['SubmissionCreateBody']
-    const submitter = db.submitters[0]
+    const submitter = (
+      body.submitterEmail
+        ? db.submitters.find(s => s.email === body.submitterEmail)
+        : undefined
+    ) ?? db.submitters[Math.floor(Math.random() * db.submitters.length)]
     if (!submitter) {
       return HttpResponse.json(
         { error: { code: 'NOT_FOUND', message: 'Submitter not found' } },
