@@ -72,7 +72,7 @@ const submissions: Submission[] = [
     },
     tags: ['typescript', 'javascript'],
     review: {
-      reviewerId: reviewer.id,
+      reviewer: { name: reviewer.name, email: reviewer.email },
       verdict: 'approved',
       reason: 'Well-written and technically accurate.',
       reviewedAt: daysAgo(1),
@@ -97,7 +97,7 @@ const submissions: Submission[] = [
     },
     tags: ['css', 'tailwind'],
     review: {
-      reviewerId: reviewer.id,
+      reviewer: { name: reviewer.name, email: reviewer.email },
       verdict: 'approved',
       reason: 'Clear and practical guide.',
       reviewedAt: daysAgo(4),
@@ -142,7 +142,7 @@ const submissions: Submission[] = [
     },
     tags: ['vue', 'frontend'],
     review: {
-      reviewerId: reviewer.id,
+      reviewer: { name: reviewer.name, email: reviewer.email },
       verdict: 'approved',
       reason: 'Great depth and clarity.',
       reviewedAt: daysAgo(2),
@@ -167,7 +167,7 @@ const submissions: Submission[] = [
     },
     tags: ['design'],
     review: {
-      reviewerId: reviewer.id,
+      reviewer: { name: reviewer.name, email: reviewer.email },
       verdict: 'rejected',
       reason: 'Paywalled content not suitable for this platform.',
       reviewedAt: daysAgo(5),

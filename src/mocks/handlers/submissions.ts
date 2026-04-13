@@ -25,7 +25,7 @@ export const submissionHandlers = [
         ...submission,
         status: body.verdict === 'approved' ? 'approved' : 'rejected',
         review: {
-          reviewerId: user.id,
+          reviewer: { name: user.name, email: user.email },
           verdict: body.verdict,
           reason: body.reason,
           reviewedAt,
