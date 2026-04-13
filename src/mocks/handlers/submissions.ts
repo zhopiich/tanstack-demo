@@ -2,6 +2,7 @@ import type { components } from '@/api/schema'
 import { http, HttpResponse } from 'msw'
 import { db } from '../db'
 import createId from '../utils/createId'
+import { forbidden } from '../utils/forbidden'
 import { resolveToken } from '../utils/resolveToken'
 import { unauthorized } from '../utils/unauthorized'
 
@@ -37,8 +38,11 @@ export const submissionHandlers = [
   }),
 
   http.post('/api/submissions/batch-delete', async ({ request }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
     const body = await request.json() as components['schemas']['BatchDeleteBody']
     const idsSet = new Set(body.ids)
     const before = db.submissions.length
@@ -94,8 +98,11 @@ export const submissionHandlers = [
   }),
 
   http.post('/api/submissions', async ({ request }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
     const body = await request.json() as components['schemas']['SubmissionCreateBody']
     const submitter = db.submitters[0]
     if (!submitter) {
@@ -135,8 +142,11 @@ export const submissionHandlers = [
   }),
 
   http.patch('/api/submissions/:id', async ({ request, params }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
     const index = db.submissions.findIndex(s => s.id === params.id)
     const submission = db.submissions[index]
     if (!submission) {
@@ -155,8 +165,11 @@ export const submissionHandlers = [
   }),
 
   http.delete('/api/submissions/:id', ({ request, params }) => {
-    if (!resolveToken(request))
+    const user = resolveToken(request)
+    if (!user)
       return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
     const index = db.submissions.findIndex(s => s.id === params.id)
     if (index === -1) {
       return HttpResponse.json(
