@@ -149,6 +149,7 @@ export const SubmissionCreateFormSchema = z.object({
   type: SubmissionTypeSchema,
   tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed'),
   content: ContentSchema,
+  submitterEmail: z.email('Invalid email').optional(),
 }) satisfies z.ZodType<SubmissionCreateForm>
 
 export const SubmissionUpdateFormSchema
