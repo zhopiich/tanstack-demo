@@ -1,4 +1,4 @@
-import type { RowSelectionState, SortingState } from '@tanstack/vue-table'
+import type { ColumnDef, RowSelectionState, SortingState } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
 import type { Submission } from '../../../schemas/submission'
 import type { SubmissionFilters } from '../exports'
@@ -10,17 +10,10 @@ import { useAuthStore } from '@/stores/auth'
 
 const columnHelper = createColumnHelper<Submission>()
 
-interface Params {
-  submissions: Ref<Submission[]>
-  paginationMeta: Ref<Pagination | undefined>
-  filters: SubmissionFilters
-  rowSelection: Ref<RowSelectionState>
-}
+type AuthStore = ReturnType<typeof useAuthStore>
 
-export function useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection }: Params) {
-  const authStore = useAuthStore()
-
-  const columns = [
+export function createColumns(authStore: AuthStore): ColumnDef<Submission, any>[] {
+  return [
     columnHelper.display({
       id: 'select',
       header: ({ table }) => h('input', {
@@ -64,14 +57,27 @@ export function useSubmissionsTable({ submissions, paginationMeta, filters, rowS
       },
     }),
   ]
+}
+
+interface Params {
+  submissions: Ref<Submission[]>
+  paginationMeta: Ref<Pagination | undefined>
+  filters: SubmissionFilters
+  rowSelection: Ref<RowSelectionState>
+}
+
+export function useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection }: Params) {
+  const authStore = useAuthStore()
+
+  const columns = computed(() => createColumns(authStore))
 
   const sorting = computed<SortingState>(() =>
     filters.sortBy ? [{ id: filters.sortBy, desc: filters.sortOrder === 'desc' }] : [],
   )
 
-  const table = useVueTable({
+  return { table: useVueTable({
     get data() { return submissions.value },
-    columns,
+    get columns() { return columns.value },
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
     getRowId: row => row.id,
@@ -107,7 +113,5 @@ export function useSubmissionsTable({ submissions, paginationMeta, filters, rowS
     onRowSelectionChange: (updater) => {
       rowSelection.value = typeof updater === 'function' ? updater(rowSelection.value) : updater
     },
-  })
-
-  return { table }
+  }) }
 }
