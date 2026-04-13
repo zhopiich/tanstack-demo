@@ -1,14 +1,13 @@
 import type { RowSelectionState, SortingState } from '@tanstack/vue-table'
 import type { Ref } from 'vue'
+import type { Submission } from '../../../schemas/submission'
 import type { SubmissionFilters } from '../exports'
-import type { components } from '@/api/schema'
 import type { Pagination } from '@/schemas/common'
 import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-type Submission = components['schemas']['Submission']
 const columnHelper = createColumnHelper<Submission>()
 
 interface Params {
