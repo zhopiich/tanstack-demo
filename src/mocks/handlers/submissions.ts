@@ -9,7 +9,8 @@ import { unauthorized } from '../utils/unauthorized'
 export const submissionHandlers = [
   http.post('/api/submissions/batch-review', async ({ request }) => {
     const user = resolveToken(request)
-    if (!user) return unauthorized()
+    if (!user)
+      return unauthorized()
     const body = await request.json() as components['schemas']['BatchReviewBody']
     let updatedCount = 0
     const reviewedAt = new Date().toISOString()
