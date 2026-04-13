@@ -4,12 +4,8 @@
 
 <script setup lang="ts">
 import type { Table } from '@tanstack/vue-table'
-import type { components } from '@/api/schema'
+import type { Submission } from '../../../schemas/submission'
 import DataTable from '@/components/DataTable.vue'
 
-type Submission = components['schemas']['Submission']
-
-defineProps<{
-  table: Table<Submission>
-}>()
+defineProps<{ table: Table<Submission> }>()
 </script>
