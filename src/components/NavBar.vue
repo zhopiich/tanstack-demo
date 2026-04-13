@@ -1,8 +1,13 @@
 <template>
   <nav>
-    <RouterLink to="/submissions">
-      Submissions
-    </RouterLink>
+    <div>
+      <RouterLink to="/submissions">
+        Submissions
+      </RouterLink>
+      <RouterLink to="/dashboard">
+        Dashboard
+      </RouterLink>
+    </div>
 
     <div class="user">
       <template v-if="authStore.isAuthenticated">
