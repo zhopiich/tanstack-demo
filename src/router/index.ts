@@ -51,6 +51,11 @@ const router = createRouter({
       component: () => import('@/features/submission/views/SubmissionFormView/index.vue'),
       meta: { requiresAdmin: true },
     },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('@/features/dashboard/views/DashboardView.vue'),
+    },
 
   ],
 })

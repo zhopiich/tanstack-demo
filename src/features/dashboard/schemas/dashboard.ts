@@ -1,7 +1,7 @@
 import type { components } from '@/api/schema'
 import { z } from 'zod'
-import { createDataResponseSchema, CuidSchema } from './common'
-import { SubmissionTypeSchema, SubmitterTierSchema } from './submission'
+import { createDataResponseSchema, CuidSchema } from '@/schemas/common'
+import { SubmissionTypeSchema, SubmitterTierSchema } from '@/schemas/submission'
 
 export type DashboardSummary = components['schemas']['DashboardSummary']
 export type DashboardByType = components['schemas']['DashboardByType']
