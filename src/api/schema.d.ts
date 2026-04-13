@@ -583,6 +583,8 @@ export interface components {
             type: components["schemas"]["SubmissionType"];
             tags: string[];
             content: components["schemas"]["Content"];
+            /** Format: email */
+            submitterEmail?: string;
         };
         SubmissionUpdateBody: {
             title?: string;

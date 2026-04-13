@@ -288,6 +288,9 @@ components:
           maxItems: 5
         content:
           $ref: '#/components/schemas/Content'
+        submitterEmail:
+          type: string
+          format: email
 
     SubmissionUpdateBody:
       type: object
