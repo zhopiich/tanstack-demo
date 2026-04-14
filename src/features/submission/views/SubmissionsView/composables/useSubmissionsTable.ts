@@ -7,12 +7,16 @@ import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-
 import { computed, h } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useHoverPrefetch } from './useHoverPrefetch'
 
 const columnHelper = createColumnHelper<Submission>()
 
 type AuthStore = ReturnType<typeof useAuthStore>
 
-export function createColumns(authStore: AuthStore): ColumnDef<Submission, any>[] {
+export function createColumns(
+  authStore: AuthStore,
+  hoverPrefetch: ReturnType<typeof useHoverPrefetch>,
+): ColumnDef<Submission, any>[] {
   return [
     columnHelper.display({
       id: 'select',
@@ -53,7 +57,11 @@ export function createColumns(authStore: AuthStore): ColumnDef<Submission, any>[
           nodes.push(h('span', ' | '))
           nodes.push(h(RouterLink, { to: `/submissions/${id}/edit` }, () => 'Edit'))
         }
-        return h('span', nodes)
+        return h('span', {
+          onMouseenter: () => hoverPrefetch.onEnter(id),
+          onMouseleave: hoverPrefetch.onLeave,
+          onVnodeUnmounted: hoverPrefetch.onLeave,
+        }, nodes)
       },
     }),
   ]
@@ -68,8 +76,9 @@ interface Params {
 
 export function useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection }: Params) {
   const authStore = useAuthStore()
+  const hoverPrefetch = useHoverPrefetch()
 
-  const columns = computed(() => createColumns(authStore))
+  const columns = computed(() => createColumns(authStore, hoverPrefetch))
 
   const sorting = computed<SortingState>(() =>
     filters.sortBy ? [{ id: filters.sortBy, desc: filters.sortOrder === 'desc' }] : [],
