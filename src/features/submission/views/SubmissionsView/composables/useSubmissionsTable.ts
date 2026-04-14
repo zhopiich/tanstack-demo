@@ -5,14 +5,11 @@ import type { SubmissionFilters } from '../exports'
 import type { Pagination } from '@/schemas/common'
 import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h } from 'vue'
-import { RouterLink } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import ActionsTableCell from '../components/ActionsTableCell'
 
 const columnHelper = createColumnHelper<Submission>()
 
-type AuthStore = ReturnType<typeof useAuthStore>
-
-export function createColumns(authStore: AuthStore): ColumnDef<Submission, any>[] {
+export function createColumns(): ColumnDef<Submission, any>[] {
   return [
     columnHelper.display({
       id: 'select',
@@ -46,15 +43,9 @@ export function createColumns(authStore: AuthStore): ColumnDef<Submission, any>[
     columnHelper.display({
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => {
-        const id = row.original.id
-        const nodes = [h(RouterLink, { to: `/submissions/${id}` }, () => 'View')]
-        if (authStore.role === 'admin') {
-          nodes.push(h('span', ' | '))
-          nodes.push(h(RouterLink, { to: `/submissions/${id}/edit` }, () => 'Edit'))
-        }
-        return h('span', nodes)
-      },
+      cell: ({ row }) => h(ActionsTableCell, {
+        id: row.original.id,
+      }),
     }),
   ]
 }
@@ -67,9 +58,7 @@ interface Params {
 }
 
 export function useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection }: Params) {
-  const authStore = useAuthStore()
-
-  const columns = computed(() => createColumns(authStore))
+  const columns = createColumns()
 
   const sorting = computed<SortingState>(() =>
     filters.sortBy ? [{ id: filters.sortBy, desc: filters.sortOrder === 'desc' }] : [],
@@ -77,7 +66,7 @@ export function useSubmissionsTable({ submissions, paginationMeta, filters, rowS
 
   return { table: useVueTable({
     get data() { return submissions.value },
-    get columns() { return columns.value },
+    columns,
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
     getRowId: row => row.id,
