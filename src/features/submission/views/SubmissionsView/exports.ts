@@ -1,4 +1,5 @@
 export type { SubmissionFilters } from '../../queries/keys'
+export { usePrefetchSubmission } from '../../queries/usePrefetchSubmission'
 export { useBatchDelete, useBatchReview } from '../../queries/useSubmissionMutations'
 export { useSubmissions } from '../../queries/useSubmissions'
 export { BatchReviewFormSchema } from '../../schemas/submission'

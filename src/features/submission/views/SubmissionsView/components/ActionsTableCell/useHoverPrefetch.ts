@@ -1,5 +1,5 @@
 import { onUnmounted } from 'vue'
-import { usePrefetchSubmission } from '../../../queries/usePrefetchSubmission'
+import { usePrefetchSubmission } from '../../exports'
 
 export function useHoverPrefetch() {
   const prefetchSubmission = usePrefetchSubmission()

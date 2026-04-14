@@ -2,20 +2,14 @@ import type { ColumnDef, RowSelectionState, SortingState } from '@tanstack/vue-t
 import type { Ref } from 'vue'
 import type { Submission } from '../../../schemas/submission'
 import type { SubmissionFilters } from '../exports'
-import type { AuthRole } from '@/schemas/auth'
 import type { Pagination } from '@/schemas/common'
 import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h } from 'vue'
-import { RouterLink } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { useHoverPrefetch } from './useHoverPrefetch'
+import ActionsTableCell from '../components/ActionsTableCell'
 
 const columnHelper = createColumnHelper<Submission>()
 
-export function createColumns(
-  role: AuthRole | null,
-  hoverPrefetch: ReturnType<typeof useHoverPrefetch>,
-): ColumnDef<Submission, any>[] {
+export function createColumns(): ColumnDef<Submission, any>[] {
   return [
     columnHelper.display({
       id: 'select',
@@ -49,19 +43,9 @@ export function createColumns(
     columnHelper.display({
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => {
-        const id = row.original.id
-        const nodes = [h(RouterLink, { to: `/submissions/${id}` }, () => 'View')]
-        if (role === 'admin') {
-          nodes.push(h('span', ' | '))
-          nodes.push(h(RouterLink, { to: `/submissions/${id}/edit` }, () => 'Edit'))
-        }
-        return h('span', {
-          onMouseenter: () => hoverPrefetch.onEnter(id),
-          onMouseleave: hoverPrefetch.onLeave,
-          onVnodeUnmounted: hoverPrefetch.onLeave,
-        }, nodes)
-      },
+      cell: ({ row }) => h(ActionsTableCell, {
+        id: row.original.id,
+      }),
     }),
   ]
 }
@@ -74,10 +58,7 @@ interface Params {
 }
 
 export function useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection }: Params) {
-  const authStore = useAuthStore()
-  const hoverPrefetch = useHoverPrefetch()
-
-  const columns = createColumns(authStore.role, hoverPrefetch)
+  const columns = createColumns()
 
   const sorting = computed<SortingState>(() =>
     filters.sortBy ? [{ id: filters.sortBy, desc: filters.sortOrder === 'desc' }] : [],
