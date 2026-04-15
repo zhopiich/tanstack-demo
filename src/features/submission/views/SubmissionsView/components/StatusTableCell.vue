@@ -1,9 +1,16 @@
 <template>
-  <select v-if="isSelectable" :value="status" @change="handleChange">
-    <option v-for="o in statusOptions" :key="o" :value="o">
-      {{ o }}
-    </option>
-  </select>
+  <template v-if="isSelectable">
+    <select :value="status" :disabled="isPending" @change="handleChange">
+      <option v-for="o in statusOptions" :key="o" :value="o">
+        {{ o }}
+      </option>
+    </select>
+    <span
+      v-if="isError"
+      title="Failed to update status. Please try again."
+      style="cursor: help"
+    >⚠</span>
+  </template>
   <span v-else>{{ status }}</span>
 </template>
 
@@ -21,7 +28,7 @@ const props = defineProps<{
 }>()
 
 const authStore = useAuthStore()
-const { mutate } = useUpdateSubmissionStatus()
+const { mutate, isPending, isError } = useUpdateSubmissionStatus()
 
 const statusOptions: SelectableStatus[] = ['pending', 'flagged']
 
