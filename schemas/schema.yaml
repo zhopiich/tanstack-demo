@@ -318,7 +318,8 @@ components:
       required: [status]
       properties:
         status:
-          $ref: '#/components/schemas/SubmissionStatus'
+          type: string
+          enum: [pending, flagged]
 
     BatchReviewBody:
       type: object

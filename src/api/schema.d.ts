@@ -658,7 +658,8 @@ export interface components {
             content?: components["schemas"]["Content"];
         };
         SubmissionStatusUpdateBody: {
-            status: components["schemas"]["SubmissionStatus"];
+            /** @enum {string} */
+            status: "pending" | "flagged";
         };
         BatchReviewBody: {
             ids: string[];
