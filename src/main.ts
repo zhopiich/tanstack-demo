@@ -9,7 +9,10 @@ import { useAuthStore } from './stores/auth'
 import './assets/main.css'
 
 async function main() {
+  const app = createApp(App)
+
   if (import.meta.env.DEV) {
+    const { MockPlugin } = await import('./mocks/panel-plugin')
     const { worker } = await import('./mocks/browser')
     await worker.start({
       onUnhandledRequest: 'bypass',
@@ -17,9 +20,9 @@ async function main() {
         url: '/mockServiceWorker.js',
       },
     })
+    app.use(MockPlugin)
   }
 
-  const app = createApp(App)
   const pinia = createPinia()
 
   app.use(pinia)
