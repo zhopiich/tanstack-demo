@@ -146,6 +146,29 @@ export const submissionHandlers = [
     return HttpResponse.json({ data: submission })
   }),
 
+  http.patch('/api/submissions/:id/status', async ({ request, params }) => {
+    const user = resolveToken(request)
+    if (!user)
+      return unauthorized()
+    if (user.role !== 'admin')
+      return forbidden()
+    const index = db.submissions.findIndex(s => s.id === params.id)
+    const submission = db.submissions[index]
+    if (!submission) {
+      return HttpResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Submission not found' } },
+        { status: 404 },
+      )
+    }
+    const body = await request.json() as components['schemas']['SubmissionStatusUpdateBody']
+    db.submissions[index] = {
+      ...submission,
+      status: body.status,
+      updatedAt: new Date().toISOString(),
+    }
+    return HttpResponse.json({ data: db.submissions[index] })
+  }),
+
   http.patch('/api/submissions/:id', async ({ request, params }) => {
     const user = resolveToken(request)
     if (!user)
