@@ -313,6 +313,13 @@ components:
         content:
           $ref: '#/components/schemas/Content'
 
+    SubmissionStatusUpdateBody:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/SubmissionStatus'
+
     BatchReviewBody:
       type: object
       required: [ids, verdict, reason]
@@ -690,6 +697,42 @@ paths:
       responses:
         '204':
           description: Deleted
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /submissions/{id}/status:
+    patch:
+      tags: [submissions]
+      summary: Update submission status
+      parameters:
+        - $ref: '#/components/parameters/SubmissionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionStatusUpdateBody'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Submission'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Not found
           content:
