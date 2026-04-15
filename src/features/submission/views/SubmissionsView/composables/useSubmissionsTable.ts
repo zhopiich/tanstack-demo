@@ -6,6 +6,7 @@ import type { Pagination } from '@/schemas/common'
 import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h } from 'vue'
 import ActionsTableCell from '../components/ActionsTableCell'
+import StatusTableCell from '../components/StatusTableCell.vue'
 
 const columnHelper = createColumnHelper<Submission>()
 
@@ -28,7 +29,14 @@ export function createColumns(): ColumnDef<Submission, any>[] {
     }),
     columnHelper.accessor('title', { header: 'Title', enableSorting: false }),
     columnHelper.accessor('type', { header: 'Type', enableSorting: false }),
-    columnHelper.accessor('status', { header: 'Status', enableSorting: false }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      enableSorting: false,
+      cell: ({ row }) => h(StatusTableCell, {
+        id: row.original.id,
+        status: row.original.status,
+      }),
+    }),
     columnHelper.accessor(row => row.submitter.name, {
       id: 'submitter',
       header: 'Submitter',

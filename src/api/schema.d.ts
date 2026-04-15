@@ -343,6 +343,68 @@ export interface paths {
         };
         trace?: never;
     };
+    "/submissions/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update submission status */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: components["parameters"]["SubmissionId"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SubmissionStatusUpdateBody"];
+                };
+            };
+            responses: {
+                /** @description Status updated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Submission"];
+                        };
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/submissions/batch-review": {
         parameters: {
             query?: never;
@@ -594,6 +656,10 @@ export interface components {
             title?: string;
             tags?: string[];
             content?: components["schemas"]["Content"];
+        };
+        SubmissionStatusUpdateBody: {
+            /** @enum {string} */
+            status: "pending" | "flagged";
         };
         BatchReviewBody: {
             ids: string[];

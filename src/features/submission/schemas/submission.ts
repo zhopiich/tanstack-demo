@@ -18,6 +18,7 @@ export type SubmissionCreateForm = components['schemas']['SubmissionCreateBody']
 export type SubmissionUpdateForm = components['schemas']['SubmissionUpdateBody']
 export type BatchReviewForm = components['schemas']['BatchReviewBody']
 export type BatchDeleteForm = components['schemas']['BatchDeleteBody']
+export type SubmissionStatusUpdateBody = components['schemas']['SubmissionStatusUpdateBody']
 
 // Enums
 
@@ -167,3 +168,7 @@ export const BatchReviewFormSchema = z.object({
 export const BatchDeleteFormSchema = z.object({
   ids: z.array(CuidSchema).min(1, 'Please select at least one record'),
 }) satisfies z.ZodType<BatchDeleteForm>
+
+export const SubmissionStatusUpdateBodySchema = z.object({
+  status: z.enum(['pending', 'flagged']),
+}) satisfies z.ZodType<SubmissionStatusUpdateBody>
