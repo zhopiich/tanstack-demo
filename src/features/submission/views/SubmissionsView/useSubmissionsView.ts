@@ -5,7 +5,7 @@ import { useSubmissionsRouteQuery } from './composables/useSubmissionsRouteQuery
 import { useSubmissionsTable } from './composables/useSubmissionsTable'
 
 export function useSubmissionsView() {
-  const { page, pageSize, sortBy, sortOrder, status, type, search } = useSubmissionsRouteQuery()
+  const { page, pageSize, sortBy, sortOrder, status, type, tier, search } = useSubmissionsRouteQuery()
 
   const filters = computed(() => ({
     page: page.value,
@@ -14,6 +14,7 @@ export function useSubmissionsView() {
     sortOrder: sortOrder.value,
     status: status.value,
     type: type.value,
+    tier: tier.value,
     search: search.value,
   }))
 
@@ -29,5 +30,5 @@ export function useSubmissionsView() {
     { rowSelection, page, pageSize, sortBy, sortOrder },
   )
 
-  return { isFetching, isPending, isError, pagination, selectedIds, table, status, type, search }
+  return { isFetching, isPending, isError, pagination, selectedIds, table, status, type, tier, search }
 }

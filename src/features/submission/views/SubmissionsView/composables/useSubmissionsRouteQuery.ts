@@ -10,9 +10,10 @@ export function useSubmissionsRouteQuery() {
 
   const status = useRouteQuery<SubmissionFilters['status'] | undefined>('status', undefined)
   const type = useRouteQuery<SubmissionFilters['type'] | undefined>('type', undefined)
+  const tier = useRouteQuery<SubmissionFilters['tier'] | undefined>('tier', undefined)
   const search = useRouteQuery<string | undefined>('search', undefined)
 
-  watch([status, type, search], () => page.value = 1)
+  watch([status, type, tier, search], () => page.value = 1)
 
   return {
     page,
@@ -21,6 +22,7 @@ export function useSubmissionsRouteQuery() {
     sortOrder,
     status,
     type,
+    tier,
     search,
   }
 }
