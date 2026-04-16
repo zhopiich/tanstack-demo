@@ -5,6 +5,7 @@ import type {
 import type { ApiResponse } from '@/types/api'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { apiClient } from '@/api/client'
+import { dashboardKeys } from '@/queryKeys/dashboard'
 import { submissionKeys } from '../queries/keys'
 
 export function useUpdateSubmissionStatus() {
@@ -52,6 +53,7 @@ export function useUpdateSubmissionStatus() {
     onSettled: (_data, _err, { id }) => {
       queryClient.invalidateQueries({ queryKey: submissionKeys.detail(id) })
       queryClient.invalidateQueries({ queryKey: submissionKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all })
     },
   })
 }

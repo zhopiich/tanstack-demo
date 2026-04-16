@@ -1,6 +1,7 @@
 import type { BatchDeleteForm, BatchReviewForm, SubmissionCreateForm, SubmissionUpdateForm } from '../schemas/submission'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { apiClient } from '@/api/client'
+import { dashboardKeys } from '@/queryKeys/dashboard'
 import { submissionKeys } from './keys'
 
 export function useCreateSubmission() {
@@ -15,6 +16,7 @@ export function useCreateSubmission() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: submissionKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all })
     },
   })
 }
@@ -53,6 +55,7 @@ export function useDeleteSubmission() {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: submissionKeys.lists() })
       queryClient.removeQueries({ queryKey: submissionKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all })
     },
   })
 }
@@ -69,6 +72,7 @@ export function useBatchReview() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: submissionKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all })
     },
   })
 }
@@ -88,6 +92,7 @@ export function useBatchDelete() {
       for (const id of ids) {
         queryClient.removeQueries({ queryKey: submissionKeys.detail(id) })
       }
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all })
     },
   })
 }
