@@ -27,6 +27,7 @@
         :table="table"
         :page="paginationMeta.page"
         :total-pages="paginationMeta.totalPages"
+        :total="paginationMeta.total"
       />
     </template>
   </div>
