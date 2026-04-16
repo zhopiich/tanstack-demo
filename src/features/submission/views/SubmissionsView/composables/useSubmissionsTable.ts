@@ -1,5 +1,5 @@
 import type { ColumnDef, RowSelectionState, SortingState } from '@tanstack/vue-table'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import type { Submission } from '../../../schemas/submission'
 import type { SubmissionFilters } from '../exports'
 import type { Pagination } from '@/schemas/common'
@@ -61,15 +61,19 @@ export function createColumns(): ColumnDef<Submission, any>[] {
 interface Params {
   submissions: Ref<Submission[]>
   paginationMeta: Ref<Pagination | undefined>
-  filters: SubmissionFilters
+  filters: ComputedRef<SubmissionFilters>
+  page: Ref<number>
+  pageSize: Ref<number>
+  sortBy: Ref<SubmissionFilters['sortBy'] | null>
+  sortOrder: Ref<SubmissionFilters['sortOrder'] | null>
   rowSelection: Ref<RowSelectionState>
 }
 
-export function useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection }: Params) {
+export function useSubmissionsTable({ submissions, paginationMeta, filters, page, pageSize, sortBy, sortOrder, rowSelection }: Params) {
   const columns = createColumns()
 
   const sorting = computed<SortingState>(() =>
-    filters.sortBy ? [{ id: filters.sortBy, desc: filters.sortOrder === 'desc' }] : [],
+    sortBy.value ? [{ id: sortBy.value, desc: sortOrder.value === 'desc' }] : [],
   )
 
   return { table: useVueTable({
@@ -84,7 +88,7 @@ export function useSubmissionsTable({ submissions, paginationMeta, filters, rowS
     state: {
       get sorting() { return sorting.value },
       get pagination() {
-        return { pageIndex: (filters.page ?? 1) - 1, pageSize: filters.pageSize ?? 10 }
+        return { pageIndex: (filters.value.page ?? 1) - 1, pageSize: filters.value.pageSize ?? 10 }
       },
       get rowSelection() { return rowSelection.value },
     },
@@ -92,20 +96,20 @@ export function useSubmissionsTable({ submissions, paginationMeta, filters, rowS
       const next = typeof updater === 'function' ? updater(sorting.value) : updater
       const first = next[0]
       if (first) {
-        filters.sortBy = first.id as SubmissionFilters['sortBy']
-        filters.sortOrder = first.desc ? 'desc' : 'asc'
+        sortBy.value = first.id as SubmissionFilters['sortBy']
+        sortOrder.value = first.desc ? 'desc' : 'asc'
       }
       else {
-        delete filters.sortBy
-        delete filters.sortOrder
+        sortBy.value = null
+        sortOrder.value = null
       }
-      filters.page = 1
+      page.value = 1
     },
     onPaginationChange: (updater) => {
-      const current = { pageIndex: (filters.page ?? 1) - 1, pageSize: filters.pageSize ?? 10 }
+      const current = { pageIndex: (filters.value.page ?? 1) - 1, pageSize: filters.value.pageSize ?? 10 }
       const next = typeof updater === 'function' ? updater(current) : updater
-      filters.page = next.pageIndex + 1
-      filters.pageSize = next.pageSize
+      page.value = next.pageIndex + 1
+      pageSize.value = next.pageSize
     },
     onRowSelectionChange: (updater) => {
       rowSelection.value = typeof updater === 'function' ? updater(rowSelection.value) : updater

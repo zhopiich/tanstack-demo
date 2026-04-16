@@ -46,7 +46,7 @@ const authStore = useAuthStore()
 
 const { selectedIds, rowSelection } = useSharedRowSelection()
 
-const { filters, submissions, paginationMeta, isFetching, isPending, isError } = useSubmissionsQuery()
+const { filters, page, pageSize, sortBy, sortOrder, submissions, paginationMeta, isFetching, isPending, isError } = useSubmissionsQuery()
 
-const { table } = useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection })
+const { table } = useSubmissionsTable({ submissions, paginationMeta, filters, page, pageSize, sortBy, sortOrder, rowSelection })
 </script>
