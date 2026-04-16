@@ -34,20 +34,28 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useSubmissions } from '../../queries/useSubmissions'
 import SubmissionBatchActionsBar from './components/SubmissionBatchActionsBar'
 import SubmissionsPagination from './components/SubmissionsPagination.vue'
 import SubmissionsTable from './components/SubmissionsTable.vue'
 import { useSharedRowSelection } from './composables/useRowSelection'
-import { useSubmissionsQuery } from './composables/useSubmissionsQuery'
+import { useSubmissionsRouteQuery } from './composables/useSubmissionsRouteQuery'
 import { useSubmissionsTable } from './composables/useSubmissionsTable'
 
 const authStore = useAuthStore()
 
+const { filters, page, pageSize, sortBy, sortOrder } = useSubmissionsRouteQuery()
 const { selectedIds, rowSelection } = useSharedRowSelection()
+const { data, isFetching, isPending, isError } = useSubmissions(() => ({ ...filters.value }))
 
-const { filters, page, pageSize, sortBy, sortOrder, submissions, paginationMeta, isFetching, isPending, isError } = useSubmissionsQuery()
+const submissions = computed(() => data.value?.data ?? [])
+const paginationMeta = computed(() => data.value?.pagination)
 
-const { table } = useSubmissionsTable({ submissions, paginationMeta, filters, page, pageSize, sortBy, sortOrder, rowSelection })
+const { table } = useSubmissionsTable(
+  { submissions, get totalPages() { return paginationMeta.value?.totalPages } },
+  { rowSelection, page, pageSize, sortBy, sortOrder },
+)
 </script>

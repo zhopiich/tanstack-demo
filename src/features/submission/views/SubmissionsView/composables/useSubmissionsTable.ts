@@ -1,10 +1,9 @@
-import type { ColumnDef, RowSelectionState, SortingState } from '@tanstack/vue-table'
-import type { ComputedRef, Ref } from 'vue'
+import type { ColumnDef, RowSelectionState, SortingState, Table } from '@tanstack/vue-table'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 import type { Submission } from '../../../schemas/submission'
 import type { SubmissionFilters } from '../exports'
-import type { Pagination } from '@/schemas/common'
 import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { computed, h } from 'vue'
+import { computed, h, toValue } from 'vue'
 import ActionsTableCell from '../components/ActionsTableCell'
 import StatusTableCell from '../components/StatusTableCell.vue'
 
@@ -58,37 +57,50 @@ export function createColumns(): ColumnDef<Submission, any>[] {
   ]
 }
 
-interface Params {
-  submissions: Ref<Submission[]>
-  paginationMeta: Ref<Pagination | undefined>
-  filters: ComputedRef<SubmissionFilters>
-  page: Ref<number>
-  pageSize: Ref<number>
-  sortBy: Ref<SubmissionFilters['sortBy'] | null>
-  sortOrder: Ref<SubmissionFilters['sortOrder'] | null>
-  rowSelection: Ref<RowSelectionState>
+export type ToRefs<T extends object> = {
+  [K in keyof T]: Ref<T[K]>
 }
 
-export function useSubmissionsTable({ submissions, paginationMeta, filters, page, pageSize, sortBy, sortOrder, rowSelection }: Params) {
+interface Source {
+  submissions: Ref<Submission[]>
+  totalPages: MaybeRefOrGetter<number | undefined>
+}
+
+interface TableState {
+  rowSelection: RowSelectionState
+  page: number
+  pageSize: number
+  sortBy: SubmissionFilters['sortBy']
+  sortOrder: SubmissionFilters['sortOrder']
+}
+type TableStateRefs = ToRefs<TableState>
+
+export function useSubmissionsTable(
+  source: Source,
+  { rowSelection, page, pageSize, sortBy, sortOrder }: TableStateRefs,
+): { table: Table<Submission> } {
   const columns = createColumns()
 
-  const sorting = computed<SortingState>(() =>
-    sortBy.value ? [{ id: sortBy.value, desc: sortOrder.value === 'desc' }] : [],
+  const sorting = computed<SortingState>(() => sortBy.value
+    ? [{ id: sortBy.value, desc: sortOrder.value === 'desc' }]
+    : [],
   )
 
+  const pageIndex = computed(() => (page.value ?? 1) - 1)
+
   return { table: useVueTable({
-    get data() { return submissions.value },
+    get data() { return source.submissions },
     columns,
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
     getRowId: row => row.id,
     manualPagination: true,
     manualSorting: true,
-    get pageCount() { return paginationMeta.value?.totalPages ?? -1 },
+    get pageCount() { return toValue(source.totalPages) ?? -1 },
     state: {
       get sorting() { return sorting.value },
       get pagination() {
-        return { pageIndex: (filters.value.page ?? 1) - 1, pageSize: filters.value.pageSize ?? 10 }
+        return { pageIndex: pageIndex.value, pageSize: pageSize.value }
       },
       get rowSelection() { return rowSelection.value },
     },
@@ -100,13 +112,13 @@ export function useSubmissionsTable({ submissions, paginationMeta, filters, page
         sortOrder.value = first.desc ? 'desc' : 'asc'
       }
       else {
-        sortBy.value = null
-        sortOrder.value = null
+        sortBy.value = undefined
+        sortOrder.value = undefined
       }
       page.value = 1
     },
     onPaginationChange: (updater) => {
-      const current = { pageIndex: (filters.value.page ?? 1) - 1, pageSize: filters.value.pageSize ?? 10 }
+      const current = { pageIndex: pageIndex.value, pageSize: pageSize.value }
       const next = typeof updater === 'function' ? updater(current) : updater
       page.value = next.pageIndex + 1
       pageSize.value = next.pageSize
