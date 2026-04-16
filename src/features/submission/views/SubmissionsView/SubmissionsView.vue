@@ -15,7 +15,9 @@
         Loading…
       </p>
 
-      <SubmissionsFilterBar v-model:status="status" v-model:type="type" v-model:search="search" />
+      <SubmissionsFilterBar
+        v-model:status="status" v-model:type="type" v-model:tier="tier" v-model:search="search"
+      />
 
       <SubmissionBatchActionsBar
         v-if="selectedIds.length > 0"
@@ -46,7 +48,7 @@ import { useSubmissionsView } from './useSubmissionsView'
 
 const authStore = useAuthStore()
 
-const { pagination, selectedIds, table, status, type, search, ...query } = useSubmissionsView()
+const { pagination, selectedIds, table, status, type, tier, search, ...query } = useSubmissionsView()
 
 const { isFetching, isPending, isError } = query
 </script>
