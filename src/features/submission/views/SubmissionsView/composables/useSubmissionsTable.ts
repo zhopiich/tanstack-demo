@@ -76,7 +76,7 @@ interface TableState {
 type TableStateRefs = ToRefs<TableState>
 
 export function useSubmissionsTable(
-  source: Source,
+  { submissions, totalPages }: Source,
   { rowSelection, page, pageSize, sortBy, sortOrder }: TableStateRefs,
 ): { table: Table<Submission> } {
   const columns = createColumns()
@@ -89,14 +89,14 @@ export function useSubmissionsTable(
   const pageIndex = computed(() => (page.value ?? 1) - 1)
 
   return { table: useVueTable({
-    get data() { return source.submissions },
+    get data() { return submissions.value },
     columns,
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
     getRowId: row => row.id,
     manualPagination: true,
     manualSorting: true,
-    get pageCount() { return toValue(source.totalPages) ?? -1 },
+    get pageCount() { return toValue(totalPages) ?? -1 },
     state: {
       get sorting() { return sorting.value },
       get pagination() {

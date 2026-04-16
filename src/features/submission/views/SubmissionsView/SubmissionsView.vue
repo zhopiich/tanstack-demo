@@ -55,7 +55,7 @@ const submissions = computed(() => data.value?.data ?? [])
 const paginationMeta = computed(() => data.value?.pagination)
 
 const { table } = useSubmissionsTable(
-  { submissions, get totalPages() { return paginationMeta.value?.totalPages } },
+  { submissions, totalPages: () => paginationMeta.value?.totalPages },
   { rowSelection, page, pageSize, sortBy, sortOrder },
 )
 </script>
