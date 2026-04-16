@@ -20,13 +20,14 @@
         :selected-ids-length="selectedIds.length"
       />
 
-      <SubmissionsTable v-if="!isPending" :table="table" />
+      <SubmissionsTable v-if="!isPending" :table />
 
       <SubmissionsPagination
-        v-if="paginationMeta"
-        :table="table"
-        :page="paginationMeta.page"
-        :total-pages="paginationMeta.totalPages"
+        v-if="pagination"
+        :table
+        :page="pagination.page"
+        :total-pages="pagination.totalPages"
+        :total="pagination.total"
       />
     </template>
   </div>
@@ -38,15 +39,11 @@ import { useAuthStore } from '@/stores/auth'
 import SubmissionBatchActionsBar from './components/SubmissionBatchActionsBar'
 import SubmissionsPagination from './components/SubmissionsPagination.vue'
 import SubmissionsTable from './components/SubmissionsTable.vue'
-import { useSharedRowSelection } from './composables/useRowSelection'
-import { useSubmissionsQuery } from './composables/useSubmissionsQuery'
-import { useSubmissionsTable } from './composables/useSubmissionsTable'
+import { useSubmissionsView } from './useSubmissionsView'
 
 const authStore = useAuthStore()
 
-const { selectedIds, rowSelection } = useSharedRowSelection()
+const { pagination, selectedIds, table, ...query } = useSubmissionsView()
 
-const { filters, submissions, paginationMeta, isFetching, isPending, isError } = useSubmissionsQuery()
-
-const { table } = useSubmissionsTable({ submissions, paginationMeta, filters, rowSelection })
+const { isFetching, isPending, isError } = query
 </script>
