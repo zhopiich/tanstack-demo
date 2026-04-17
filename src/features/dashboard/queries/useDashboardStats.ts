@@ -13,6 +13,7 @@ export function useDashboardStats() {
       return data
     },
     select: raw => raw.data,
-    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 30,
+    refetchIntervalInBackground: false,
   })
 }
