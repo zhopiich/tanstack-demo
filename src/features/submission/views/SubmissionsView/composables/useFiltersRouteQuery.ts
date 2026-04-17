@@ -7,7 +7,7 @@ type FilterPatch = Partial<
 >
 
 export function useFiltersRouteQuery() {
-  const route = useRoute()
+  const route = useRoute() // single source of truth across all route-aware components
   const router = useRouter()
 
   const status = computed(() => route.query.status as SubmissionFilters['status'] | undefined)
