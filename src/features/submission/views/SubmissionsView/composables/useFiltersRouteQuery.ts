@@ -26,15 +26,11 @@ export function useFiltersRouteQuery() {
   }
 
   function reset() {
-    router.replace({
-      query: {
-        ...route.query,
-        page: '1',
-        status: undefined,
-        type: undefined,
-        tier: undefined,
-        search: undefined,
-      },
+    setFilters({
+      status: undefined,
+      type: undefined,
+      tier: undefined,
+      search: undefined,
     })
   }
 
