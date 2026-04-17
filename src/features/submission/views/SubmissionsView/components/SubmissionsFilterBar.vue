@@ -1,7 +1,7 @@
 <template>
   <div>
     <input v-model="searchInput" type="search" placeholder="Search title…">
-    <select :value="status" @change="status = ($event.target as HTMLSelectElement).value as SubmissionFilters['status'] || undefined">
+    <select :value="status" @change="handleSetFilters('status', $event)">
       <option value="">
         All statuses
       </option>
@@ -9,7 +9,7 @@
         {{ s }}
       </option>
     </select>
-    <select :value="type" @change="type = ($event.target as HTMLSelectElement).value as SubmissionFilters['type'] || undefined">
+    <select :value="type" @change="handleSetFilters('type', $event)">
       <option value="">
         All types
       </option>
@@ -17,7 +17,7 @@
         {{ t }}
       </option>
     </select>
-    <select :value="tier" @change="tier = ($event.target as HTMLSelectElement).value as SubmissionFilters['tier'] || undefined">
+    <select :value="tier" @change="handleSetFilters('tier', $event)">
       <option value="">
         All tiers
       </option>
@@ -25,7 +25,7 @@
         {{ r }}
       </option>
     </select>
-    <button v-if="activeCount > 0" @click="reset">
+    <button v-if="activeCount > 0" @click="handleReset">
       Reset ({{ activeCount }})
     </button>
   </div>
@@ -34,12 +34,10 @@
 <script setup lang="ts">
 import type { SubmissionFilters } from '../exports'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
+import { useFiltersRouteQuery } from '../composables/useFiltersRouteQuery'
 
-const status = defineModel<SubmissionFilters['status'] | undefined>('status')
-const type = defineModel<SubmissionFilters['type'] | undefined>('type')
-const tier = defineModel<SubmissionFilters['tier'] | undefined>('tier')
-const search = defineModel<string | undefined>('search')
+const { status, type, tier, search, activeCount, setFilters, reset } = useFiltersRouteQuery()
 
 const statusOptions: NonNullable<SubmissionFilters['status']>[] = ['pending', 'approved', 'rejected', 'flagged']
 const typeOptions: NonNullable<SubmissionFilters['type']>[] = ['article', 'image', 'video', 'link']
@@ -48,20 +46,30 @@ const tierOptions: NonNullable<SubmissionFilters['tier']>[] = ['free', 'pro', 'v
 const searchInput = ref(search.value ?? '')
 
 const updateSearch = useDebounceFn((val: string) => {
-  search.value = val || undefined
+  setFilters({ search: val || undefined })
 }, 300)
 
 watch(searchInput, updateSearch)
 
-const activeCount = computed(() =>
-  [status.value, type.value, tier.value, search.value].filter(Boolean).length,
-)
+watch(search, (val) => {
+  if (!val)
+    searchInput.value = ''
+})
 
-function reset() {
-  status.value = undefined
-  type.value = undefined
-  tier.value = undefined
-  search.value = undefined
-  searchInput.value = ''
+function handleSetFilters<K extends keyof Pick<
+  SubmissionFilters,
+'status' | 'type' | 'tier'
+>>(
+  key: K,
+  event: Event,
+) {
+  const target = event.target as HTMLSelectElement
+  const value = target.value || undefined
+  setFilters({ [key]: value as SubmissionFilters[K] })
+}
+
+function handleReset() {
+  // searchInput.value = ''
+  reset()
 }
 </script>
