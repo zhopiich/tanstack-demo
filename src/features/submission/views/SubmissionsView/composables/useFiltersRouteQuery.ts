@@ -2,12 +2,9 @@ import type { SubmissionFilters } from '../exports'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-type FilterPatch = Partial<{
-  status: SubmissionFilters['status'] | undefined
-  type: SubmissionFilters['type'] | undefined
-  tier: SubmissionFilters['tier'] | undefined
-  search: string | undefined
-}>
+type FilterPatch = Partial<
+  Pick<SubmissionFilters, 'status' | 'type' | 'tier' | 'search'>
+>
 
 export function useFiltersRouteQuery() {
   const route = useRoute()
