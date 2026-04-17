@@ -1,12 +1,12 @@
 import { computed } from 'vue'
 import { useSubmissions } from '../../queries/useSubmissions'
 import { useFiltersRouteQuery } from './composables/useFiltersRouteQuery'
+import { usePaginationRouteQuery } from './composables/usePaginationRouteQuery'
 import { useSharedRowSelection } from './composables/useRowSelection'
-import { useSubmissionsRouteQuery } from './composables/useSubmissionsRouteQuery'
 import { useSubmissionsTable } from './composables/useSubmissionsTable'
 
 export function useSubmissionsView() {
-  const { page, pageSize, sortBy, sortOrder } = useSubmissionsRouteQuery()
+  const { page, pageSize, sortBy, sortOrder, setSorting, setPagination } = usePaginationRouteQuery()
   const { status, type, tier, search } = useFiltersRouteQuery()
 
   const filters = computed(() => ({
@@ -29,7 +29,7 @@ export function useSubmissionsView() {
 
   const { table } = useSubmissionsTable(
     { submissions, totalPages: () => pagination.value?.totalPages },
-    { rowSelection, page, pageSize, sortBy, sortOrder },
+    { rowSelection, page, pageSize, sortBy, sortOrder, setSorting, setPagination },
   )
 
   return { isFetching, isPending, isError, pagination, selectedIds, table }

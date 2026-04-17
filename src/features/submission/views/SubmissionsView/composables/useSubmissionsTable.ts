@@ -57,27 +57,24 @@ export function createColumns(): ColumnDef<Submission, any>[] {
   ]
 }
 
-export type ToRefs<T extends object> = {
-  [K in keyof T]: Ref<T[K]>
-}
-
 interface Source {
   submissions: Ref<Submission[]>
   totalPages: MaybeRefOrGetter<number | undefined>
 }
 
-interface TableState {
-  rowSelection: RowSelectionState
-  page: number
-  pageSize: number
-  sortBy: SubmissionFilters['sortBy']
-  sortOrder: SubmissionFilters['sortOrder']
+interface TableControl {
+  rowSelection: Ref<RowSelectionState>
+  page: Ref<number>
+  pageSize: Ref<number>
+  sortBy: Ref<SubmissionFilters['sortBy'] | undefined>
+  sortOrder: Ref<SubmissionFilters['sortOrder'] | undefined>
+  setSorting: (sortBy: SubmissionFilters['sortBy'] | undefined, sortOrder: SubmissionFilters['sortOrder'] | undefined) => void
+  setPagination: (page: number, pageSize: number) => void
 }
-type TableStateRefs = ToRefs<TableState>
 
 export function useSubmissionsTable(
   { submissions, totalPages }: Source,
-  { rowSelection, page, pageSize, sortBy, sortOrder }: TableStateRefs,
+  { rowSelection, page, pageSize, sortBy, sortOrder, setSorting, setPagination }: TableControl,
 ): { table: Table<Submission> } {
   const columns = createColumns()
 
@@ -107,21 +104,15 @@ export function useSubmissionsTable(
     onSortingChange: (updater) => {
       const next = typeof updater === 'function' ? updater(sorting.value) : updater
       const first = next[0]
-      if (first) {
-        sortBy.value = first.id as SubmissionFilters['sortBy']
-        sortOrder.value = first.desc ? 'desc' : 'asc'
-      }
-      else {
-        sortBy.value = undefined
-        sortOrder.value = undefined
-      }
-      page.value = 1
+      setSorting(
+        first ? first.id as SubmissionFilters['sortBy'] : undefined,
+        first ? (first.desc ? 'desc' : 'asc') : undefined,
+      )
     },
     onPaginationChange: (updater) => {
       const current = { pageIndex: pageIndex.value, pageSize: pageSize.value }
       const next = typeof updater === 'function' ? updater(current) : updater
-      page.value = next.pageIndex + 1
-      pageSize.value = next.pageSize
+      setPagination(next.pageIndex + 1, next.pageSize)
     },
     onRowSelectionChange: (updater) => {
       rowSelection.value = typeof updater === 'function' ? updater(rowSelection.value) : updater
