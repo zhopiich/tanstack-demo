@@ -2,15 +2,12 @@ import type { SubmissionFilters } from '../exports'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-type FilterPatch = Partial<{
-  status: SubmissionFilters['status'] | undefined
-  type: SubmissionFilters['type'] | undefined
-  tier: SubmissionFilters['tier'] | undefined
-  search: string | undefined
-}>
+type FilterPatch = Partial<
+  Pick<SubmissionFilters, 'status' | 'type' | 'tier' | 'search'>
+>
 
 export function useFiltersRouteQuery() {
-  const route = useRoute()
+  const route = useRoute() // single source of truth across all route-aware components
   const router = useRouter()
 
   const status = computed(() => route.query.status as SubmissionFilters['status'] | undefined)
@@ -29,15 +26,11 @@ export function useFiltersRouteQuery() {
   }
 
   function reset() {
-    router.replace({
-      query: {
-        ...route.query,
-        page: '1',
-        status: undefined,
-        type: undefined,
-        tier: undefined,
-        search: undefined,
-      },
+    setFilters({
+      status: undefined,
+      type: undefined,
+      tier: undefined,
+      search: undefined,
     })
   }
 
