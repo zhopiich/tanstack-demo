@@ -15,6 +15,8 @@
         Loading…
       </p>
 
+      <SubmissionsFilterBar />
+
       <SubmissionBatchActionsBar
         v-if="selectedIds.length > 0"
         :selected-ids-length="selectedIds.length"
@@ -37,6 +39,7 @@
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import SubmissionBatchActionsBar from './components/SubmissionBatchActionsBar'
+import SubmissionsFilterBar from './components/SubmissionsFilterBar.vue'
 import SubmissionsPagination from './components/SubmissionsPagination.vue'
 import SubmissionsTable from './components/SubmissionsTable.vue'
 import { useSubmissionsView } from './useSubmissionsView'

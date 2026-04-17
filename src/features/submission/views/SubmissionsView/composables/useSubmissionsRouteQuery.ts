@@ -7,10 +7,5 @@ export function useSubmissionsRouteQuery() {
   const sortBy = useRouteQuery<SubmissionFilters['sortBy'] | undefined>('sortBy', undefined)
   const sortOrder = useRouteQuery<SubmissionFilters['sortOrder'] | undefined>('sortOrder', undefined)
 
-  return {
-    page,
-    pageSize,
-    sortBy,
-    sortOrder,
-  }
+  return { page, pageSize, sortBy, sortOrder }
 }
