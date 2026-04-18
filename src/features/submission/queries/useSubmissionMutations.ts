@@ -8,6 +8,7 @@ export function useCreateSubmission() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    meta: { successMessage: 'Submission created', errorMessage: 'Failed to create submission' },
     mutationFn: async (body: SubmissionCreateForm) => {
       const { data, error } = await apiClient.POST('/submissions', { body })
       if (error)
@@ -25,6 +26,7 @@ export function useUpdateSubmission() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    meta: { successMessage: 'Submission updated', errorMessage: 'Failed to update submission' },
     mutationFn: async ({ id, body }: { id: string, body: SubmissionUpdateForm }) => {
       const { data, error } = await apiClient.PATCH('/submissions/{id}', {
         params: { path: { id } },
@@ -45,6 +47,7 @@ export function useDeleteSubmission() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    meta: { successMessage: 'Submission deleted', errorMessage: 'Failed to delete submission' },
     mutationFn: async (id: string) => {
       const { error } = await apiClient.DELETE('/submissions/{id}', {
         params: { path: { id } },
@@ -64,6 +67,7 @@ export function useBatchReview() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    meta: { successMessage: 'Batch review complete', errorMessage: 'Batch review failed' },
     mutationFn: async (body: BatchReviewForm) => {
       const { data, error } = await apiClient.POST('/submissions/batch-review', { body })
       if (error)
@@ -81,6 +85,7 @@ export function useBatchDelete() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    meta: { successMessage: 'Submissions deleted', errorMessage: 'Failed to delete submissions' },
     mutationFn: async (body: BatchDeleteForm) => {
       const { data, error } = await apiClient.POST('/submissions/batch-delete', { body })
       if (error)
