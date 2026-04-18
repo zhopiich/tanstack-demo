@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/stores/auth'
 
@@ -42,9 +43,9 @@ async function handleSubmit() {
           {{ error }}
         </p>
         <div class="flex justify-end">
-          <button type="submit" :disabled="loading">
+          <Button type="submit" :disabled="loading" class="cursor-pointer">
             {{ loading ? 'Logging in…' : 'Login' }}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
