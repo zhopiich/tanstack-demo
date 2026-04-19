@@ -8,13 +8,17 @@
           :class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''"
           @click="header.column.getToggleSortingHandler()?.($event)"
         >
-          <FlexRender
-            :render="header.column.columnDef.header"
-            :props="header.getContext()"
-          />
-          <span v-if="header.column.getIsSorted() === 'asc'">↑</span>
-          <span v-else-if="header.column.getIsSorted() === 'desc'">↓</span>
-          <span v-else-if="header.column.getCanSort()">↕</span>
+          <span class="flex items-center gap-1">
+            <FlexRender
+              :render="header.column.columnDef.header"
+              :props="header.getContext()"
+            />
+            <template v-if="header.column.getCanSort()">
+              <ArrowUp v-if="header.column.getIsSorted() === 'asc'" class="size-4" />
+              <ArrowDown v-else-if="header.column.getIsSorted() === 'desc'" class="size-4" />
+              <ArrowUpDown v-else class="size-4 opacity-30" />
+            </template>
+          </span>
         </TableHead>
       </TableRow>
     </TableHeader>
@@ -34,6 +38,7 @@
 <script setup lang="ts" generic="TData">
 import type { Table as TableInstance } from '@tanstack/vue-table'
 import { FlexRender } from '@tanstack/vue-table'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-vue-next'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 defineProps<{ table: TableInstance<TData> }>()
