@@ -5,6 +5,8 @@ import type { SubmissionFilters } from '../exports'
 import { createColumnHelper, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import { computed, h, toValue } from 'vue'
 import ActionsTableCell from '../components/ActionsTableCell'
+import SelectAllHeader from '../components/SelectColumn/SelectAllHeader.vue'
+import SelectRowCell from '../components/SelectColumn/SelectRowCell.vue'
 import StatusTableCell from '../components/StatusTableCell.vue'
 
 const columnHelper = createColumnHelper<Submission>()
@@ -13,18 +15,8 @@ export function createColumns(): ColumnDef<Submission, any>[] {
   return [
     columnHelper.display({
       id: 'select',
-      header: ({ table }) => h('input', {
-        type: 'checkbox',
-        checked: table.getIsAllPageRowsSelected(),
-        indeterminate: table.getIsSomePageRowsSelected(),
-        onChange: table.getToggleAllPageRowsSelectedHandler(),
-      }),
-      cell: ({ row }) => h('input', {
-        type: 'checkbox',
-        checked: row.getIsSelected(),
-        disabled: !row.getCanSelect(),
-        onChange: row.getToggleSelectedHandler(),
-      }),
+      header: ({ table }) => h(SelectAllHeader, { table }),
+      cell: ({ row }) => h(SelectRowCell, { row }),
     }),
     columnHelper.accessor('title', { header: 'Title', enableSorting: false }),
     columnHelper.accessor('type', { header: 'Type', enableSorting: false }),
