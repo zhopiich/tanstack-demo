@@ -1,13 +1,16 @@
 import type { MaybeRefOrGetter } from 'vue'
 import type { Submission, SubmissionCreateForm } from '../../schemas/submission'
-import { watch } from 'vue'
+import { toRaw, toValue, watch } from 'vue'
 import { useSubmission } from '../../queries/useSubmission'
 
 function assignForm<T extends Record<string, any>, U extends T>(form: T, data: U) {
   const _form = form as Record<string, any>
   Object.keys(_form).forEach((key) => {
-    if (data[key] != null) {
-      _form[key] = data[key]
+    const plainValue = toValue(data[key])
+    if (plainValue != null) {
+      _form[key] = (typeof plainValue === 'object')
+        ? structuredClone(toRaw(plainValue))
+        : plainValue
     }
   })
 }
