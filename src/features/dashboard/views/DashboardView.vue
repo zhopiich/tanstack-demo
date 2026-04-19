@@ -1,46 +1,51 @@
 <template>
-  <div>
-    <h1>Dashboard</h1>
+  <div class="max-w-5xl mx-auto py-8 space-y-6">
+    <h1 class="text-2xl font-bold">
+      Dashboard
+    </h1>
 
-    <p v-if="isError">
+    <p v-if="isError" class="text-sm text-destructive">
       Failed to load dashboard stats.
     </p>
 
-    <p v-else-if="isPending">
+    <p v-else-if="isPending" class="text-sm text-muted-foreground">
       Loading…
     </p>
 
     <template v-else-if="stats">
-      <section>
-        <h2>Summary</h2>
-        <ul>
-          <li v-for="item in summaryList" :key="item.label">
-            {{ item.label }}: {{ item.value }}
-          </li>
-        </ul>
-      </section>
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card v-for="item in summaryList" :key="item.label">
+          <CardHeader>
+            <CardDescription>{{ item.label }}</CardDescription>
+            <CardTitle class="text-3xl tabular-nums">
+              {{ item.value }}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
 
-      <section>
-        <h2>By Type</h2>
-        <DataTable :table="byTypeTable" />
-      </section>
-
-      <section>
-        <h2>Recent Activity</h2>
-        <DataTable :table="recentActivityTable" />
-      </section>
-
-      <section>
-        <h2>Top Submitters</h2>
-        <DataTable :table="topSubmittersTable" />
-      </section>
+      <div v-for="table in tableList" :key="table.header" class="space-y-2">
+        <h2 class="text-lg font-semibold">
+          {{ table.header }}
+        </h2>
+        <div class="rounded-md border overflow-hidden">
+          <DataTable :table="table.instance" />
+        </div>
+      </div>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Table } from '@tanstack/vue-table'
 import { computed } from 'vue'
 import DataTable from '@/components/DataTable.vue'
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { useDashboardTables } from '../composables/useDashboardTables'
 import { useDashboardStats } from '../queries/useDashboardStats'
 
@@ -58,4 +63,15 @@ const summaryList = computed(() => {
     { label: 'Flagged', value: s?.flaggedCount },
   ]
 })
+
+interface TableItem {
+  header: string
+  instance: Table<any>
+}
+
+const tableList = computed<TableItem[]>(() => [
+  { header: 'By Type', instance: byTypeTable },
+  { header: 'Recent Activity', instance: recentActivityTable },
+  { header: 'Top Submitters', instance: topSubmittersTable },
+])
 </script>
