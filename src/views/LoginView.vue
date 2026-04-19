@@ -43,7 +43,7 @@ async function handleSubmit() {
           {{ error }}
         </p>
         <div class="flex justify-end">
-          <Button type="submit" :disabled="loading" class="cursor-pointer">
+          <Button type="submit" :disabled="loading">
             {{ loading ? 'Logging in…' : 'Login' }}
           </Button>
         </div>
