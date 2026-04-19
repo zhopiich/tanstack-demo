@@ -1,32 +1,43 @@
 <template>
-  <nav>
-    <div>
-      <RouterLink to="/submissions">
-        Submissions
-      </RouterLink>
-      <RouterLink to="/dashboard">
-        Dashboard
-      </RouterLink>
-    </div>
+  <nav class="h-14 border-b bg-background">
+    <div class="max-w-5xl mx-auto px-6 h-full flex items-center justify-between">
+      <div class="flex items-center gap-1">
+        <Button as-child variant="ghost">
+          <RouterLink to="/submissions">
+            Submissions
+          </RouterLink>
+        </Button>
+        <Button as-child variant="ghost">
+          <RouterLink to="/dashboard">
+            Dashboard
+          </RouterLink>
+        </Button>
+      </div>
 
-    <div class="user">
-      <template v-if="authStore.isAuthenticated">
-        <span>{{ authStore.user?.name }} ({{ authStore.role }})</span>
-        <button :disabled="isLoggingOut" @click="handleLogout">
-          {{ isLoggingOut ? 'Logging out…' : 'Logout' }}
-        </button>
-      </template>
+      <div class="flex items-center gap-3">
+        <template v-if="authStore.isAuthenticated">
+          <span class="text-sm text-muted-foreground">
+            {{ authStore.user?.name }} ({{ authStore.role }})
+          </span>
+          <Button :disabled="isLoggingOut" @click="handleLogout">
+            {{ isLoggingOut ? 'Logging out…' : 'Logout' }}
+          </Button>
+        </template>
 
-      <RouterLink v-else to="/login">
-        Login
-      </RouterLink>
+        <Button v-else as-child variant="ghost">
+          <RouterLink to="/login">
+            Login
+          </RouterLink>
+        </Button>
+      </div>
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
@@ -44,14 +55,3 @@ async function handleLogout() {
   }
 }
 </script>
-
-<style>
-nav {
-  display: flex;
-  justify-content: space-between;
-}
-
-.user button{
-  margin-left: 0.5rem;
-}
-</style>
