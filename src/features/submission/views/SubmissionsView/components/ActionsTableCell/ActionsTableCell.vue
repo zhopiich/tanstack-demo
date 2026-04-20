@@ -4,11 +4,14 @@
     @mouseleave="onLeave"
     @vue:unmounted="onLeave"
   >
-    <RouterLink :to="`/submissions/${id}`">View</RouterLink>
+    <RouterLink :to="`/submissions/${id}`" class="text-sm px-2 py-1 hover:underline">
+      View
+    </RouterLink>
 
     <template v-if="authStore.role === 'admin'">
-      <span> | </span>
-      <RouterLink :to="`/submissions/${id}/edit`">Edit</RouterLink>
+      <RouterLink :to="`/submissions/${id}/edit`" class="text-sm px-2 py-1 hover:underline">
+        Edit
+      </RouterLink>
     </template>
   </span>
 </template>
