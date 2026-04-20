@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import HomeView from '../views/HomeView.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -13,8 +12,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      redirect: { name: 'submissions' },
     },
     {
       path: '/about',
@@ -63,7 +61,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   const authStore = useAuthStore()
   if (authStore.isAuthenticated && to.name === 'login') {
-    return { name: 'home' }
+    return { name: 'submissions' }
   }
   if (to.meta.requiresAdmin) {
     if (!authStore.isAuthenticated) return { name: 'login' }
