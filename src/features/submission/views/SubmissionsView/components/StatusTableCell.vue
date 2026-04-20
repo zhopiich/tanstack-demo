@@ -2,7 +2,7 @@
   <template v-if="isSelectable">
     <span class="flex items-center gap-1">
       <Select :model-value="status" :disabled="isPending" @update:model-value="handleChange">
-        <SelectTrigger>
+        <SelectTrigger size="sm">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -18,7 +18,7 @@
       >⚠</span>
     </span>
   </template>
-  <span v-else>{{ status }}</span>
+  <span v-else class="inline-block h-8 leading-8">{{ status }}</span>
 </template>
 
 <script setup lang="ts">
