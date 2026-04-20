@@ -1,15 +1,22 @@
 <template>
   <template v-if="isSelectable">
-    <select :value="status" :disabled="isPending" @change="handleChange">
-      <option v-for="o in statusOptions" :key="o" :value="o">
-        {{ o }}
-      </option>
-    </select>
-    <span
-      v-if="isError"
-      title="Failed to update status. Please try again."
-      style="cursor: help"
-    >⚠</span>
+    <span class="flex items-center gap-1">
+      <Select :model-value="status" :disabled="isPending" @update:model-value="handleChange">
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="o in statusOptions" :key="o" :value="o">
+            {{ o }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+      <span
+        v-if="isError"
+        title="Failed to update status. Please try again."
+        style="cursor: help"
+      >⚠</span>
+    </span>
   </template>
   <span v-else>{{ status }}</span>
 </template>
@@ -17,6 +24,7 @@
 <script setup lang="ts">
 import type { SubmissionStatus, SubmissionStatusUpdateBody } from '../../../schemas/submission'
 import { computed } from 'vue'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAuthStore } from '@/stores/auth'
 import { useUpdateSubmissionStatus } from '../../../mutations/useUpdateSubmissionStatus'
 
@@ -38,14 +46,10 @@ const isSelectable = computed(
   () => authStore.role === 'admin' && isSelectableStatus(props.status),
 )
 
-function handleChange(e: Event) {
-  if (!(e.target instanceof HTMLSelectElement))
+function handleChange(val: unknown) {
+  if (!isSelectableStatus(val) || val === props.status) {
     return
-  const newStatus = e.target.value
-  if (!isSelectableStatus(newStatus))
-    return
-  if (newStatus !== props.status) {
-    mutate({ id: props.id, status: newStatus })
   }
+  mutate({ id: props.id, status: val })
 }
 </script>
