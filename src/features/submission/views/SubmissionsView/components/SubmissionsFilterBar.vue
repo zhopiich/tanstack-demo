@@ -1,40 +1,63 @@
 <template>
-  <div>
-    <input v-model="searchInput" type="search" placeholder="Search title…">
-    <select :value="status" @change="handleSetFilters('status', $event)">
-      <option value="">
-        All statuses
-      </option>
-      <option v-for="s in statusOptions" :key="s" :value="s">
-        {{ s }}
-      </option>
-    </select>
-    <select :value="type" @change="handleSetFilters('type', $event)">
-      <option value="">
-        All types
-      </option>
-      <option v-for="t in typeOptions" :key="t" :value="t">
-        {{ t }}
-      </option>
-    </select>
-    <select :value="tier" @change="handleSetFilters('tier', $event)">
-      <option value="">
-        All tiers
-      </option>
-      <option v-for="r in tierOptions" :key="r" :value="r">
-        {{ r }}
-      </option>
-    </select>
-    <button v-if="activeCount > 0" @click="handleReset">
-      Reset ({{ activeCount }})
-    </button>
+  <div class="flex items-center gap-1">
+    <Input v-model="searchInput" class="flex-1" type="text" placeholder="Search title…" />
+
+    <Select :model-value="status ?? 'all'" @update:model-value="handleChangeStatus">
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">
+          All statuses
+        </SelectItem>
+        <SelectItem v-for="s in statusOptions" :key="s" :value="s">
+          {{ s }}
+        </SelectItem>
+      </SelectContent>
+    </Select>
+
+    <Select :model-value="type ?? 'all'" @update:model-value="handleChangeType">
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">
+          All types
+        </SelectItem>
+        <SelectItem v-for="t in typeOptions" :key="t" :value="t">
+          {{ t }}
+        </SelectItem>
+      </SelectContent>
+    </Select>
+
+    <Select :model-value="tier ?? 'all'" @update:model-value="handleChangeTier">
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">
+          All tiers
+        </SelectItem>
+        <SelectItem v-for="r in tierOptions" :key="r" :value="r">
+          {{ r }}
+        </SelectItem>
+      </SelectContent>
+    </Select>
+
+    <Button variant="secondary" class="ml-auto w-20" :disabled="activeCount === 0" @click="handleReset">
+      Reset{{ activeCount > 0 ? ` (${activeCount})` : '' }}
+    </Button>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { FilterPatch } from '../composables/useFiltersRouteQuery'
 import type { SubmissionFilters } from '../exports'
 import { useDebounceFn } from '@vueuse/core'
 import { ref, watch } from 'vue'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useFiltersRouteQuery } from '../composables/useFiltersRouteQuery'
 
 const { status, type, tier, search, activeCount, setFilters, reset } = useFiltersRouteQuery()
@@ -56,17 +79,16 @@ watch(search, (val) => {
     searchInput.value = ''
 })
 
-function handleSetFilters<K extends keyof Pick<
-  SubmissionFilters,
-'status' | 'type' | 'tier'
->>(
-  key: K,
-  event: Event,
-) {
-  const target = event.target as HTMLSelectElement
-  const value = target.value || undefined
-  setFilters({ [key]: value as SubmissionFilters[K] })
+function createHandler<K extends keyof Omit<FilterPatch, 'search'>>(key: K) {
+  return (val: unknown) => {
+    const finalVal = val === 'all' ? undefined : (val)
+    setFilters({ [key]: finalVal } satisfies FilterPatch)
+  }
 }
+
+const handleChangeStatus = createHandler('status')
+const handleChangeType = createHandler('type')
+const handleChangeTier = createHandler('tier')
 
 function handleReset() {
   // searchInput.value = ''
