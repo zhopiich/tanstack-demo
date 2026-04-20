@@ -21,15 +21,11 @@
       </p>
 
       <template v-else>
-        <p v-if="isFetching">
-          Loading…
-        </p>
-
         <div class="flex flex-col gap-2">
           <SubmissionsFilterBar />
 
           <div class="rounded-md border overflow-hidden">
-            <SubmissionsTable v-if="!isPending" :table />
+            <SubmissionsTable :table :is-pending :is-fetching />
           </div>
 
           <SubmissionsPagination
