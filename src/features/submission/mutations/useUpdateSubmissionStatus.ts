@@ -31,13 +31,15 @@ export function useUpdateSubmissionStatus() {
 
       queryClient.setQueryData<{ data: Submission }>(
         submissionKeys.detail(id),
-        old => old ? { data: { ...old.data, newStatus } } : old,
+        old => old ? { data: { ...old.data, status: newStatus } satisfies Submission } : old,
       )
 
       queryClient.setQueriesData<ApiResponse<Submission>>(
         { queryKey: submissionKeys.lists() },
         old => old
-          ? { ...old, data: old.data.map(s => s.id === id ? { ...s, newStatus } : s) }
+          ? { ...old, data: old.data.map(
+              s => s.id === id ? { ...s, status: newStatus } satisfies Submission : s,
+            ) }
           : old,
       )
 
