@@ -8,17 +8,15 @@
           :class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''"
           @click="header.column.getToggleSortingHandler()?.($event)"
         >
-          <span class="flex items-center gap-1">
             <FlexRender
               :render="header.column.columnDef.header"
               :props="header.getContext()"
             />
             <template v-if="header.column.getCanSort()">
-              <ArrowUp v-if="header.column.getIsSorted() === 'asc'" class="size-4" />
-              <ArrowDown v-else-if="header.column.getIsSorted() === 'desc'" class="size-4" />
-              <ArrowUpDown v-else class="size-4 opacity-30" />
+            <ArrowUp v-if="header.column.getIsSorted() === 'asc'" class="size-4 ml-1 inline-block" />
+            <ArrowDown v-else-if="header.column.getIsSorted() === 'desc'" class="size-4 ml-1 inline-block" />
+            <ArrowUpDown v-else class="size-4 ml-1 inline-block opacity-30" />
             </template>
-          </span>
         </TableHead>
       </TableRow>
     </TableHeader>
