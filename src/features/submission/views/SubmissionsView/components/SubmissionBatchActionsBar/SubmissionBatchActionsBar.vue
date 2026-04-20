@@ -38,9 +38,9 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useSubmissionBatchActions } from './useSubmissionBatchActions'
 
-const authStore = useAuthStore()
-
 defineProps<{ selectedIdsLength: number }>()
+
+const authStore = useAuthStore()
 
 const verdict = ref<'approve' | 'reject' | null>(null)
 const reason = ref('')
