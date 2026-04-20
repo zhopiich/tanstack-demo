@@ -2,7 +2,7 @@ import type { SubmissionFilters } from '../exports'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-type FilterPatch = Partial<
+export type FilterPatch = Partial<
   Pick<SubmissionFilters, 'status' | 'type' | 'tier' | 'search'>
 >
 

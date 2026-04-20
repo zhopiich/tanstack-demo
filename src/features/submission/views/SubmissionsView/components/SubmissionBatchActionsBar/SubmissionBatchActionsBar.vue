@@ -1,46 +1,47 @@
 <template>
-  <div>
-    <span>{{ selectedIdsLength }} selected</span>
+  <div class="flex flex-col gap-2 mt-1">
+    <Textarea v-if="verdict != null" v-model="reason" placeholder="Reason (min 10 characters)" />
 
-    <template v-if="verdict === null">
-      <button @click="verdict = 'approve'">
-        Approve
-      </button>
-      <button @click="verdict = 'reject'">
-        Reject
-      </button>
-      <button v-if="authStore.role === 'admin'" :disabled="isDeleting" @click="actions.handleBatchDelete">
-        Delete
-      </button>
-    </template>
+    <div class="flex items-center gap-1">
+      <span class="text-sm text-muted-foreground mr-auto">{{ selectedIdsLength }} selected</span>
 
-    <template v-else>
-      <input
-        v-model="reason"
-        type="text"
-        placeholder="Reason (min 10 characters)"
-      >
-      <p v-if="reasonError">
-        {{ reasonError }}
-      </p>
-      <button :disabled="isReviewing" @click="actions.handleBatchReview">
-        {{ isReviewing ? 'Submitting…' : `Confirm ${verdict}` }}
-      </button>
-      <button @click="cancelReview">
-        Cancel
-      </button>
-    </template>
+      <template v-if="verdict === null">
+        <Button variant="outline" @click="verdict = 'approve'">
+          Approve
+        </Button>
+        <Button variant="outline" @click="verdict = 'reject'">
+          Reject
+        </Button>
+        <Button v-if="authStore.role === 'admin'" :disabled="isDeleting" @click="actions.handleBatchDelete">
+          Delete
+        </Button>
+      </template>
+
+      <template v-else>
+        <p v-if="reasonError" class="text-sm text-destructive">
+          {{ reasonError }}
+        </p>
+        <Button variant="outline" @click="cancelReview">
+          Cancel
+        </Button>
+        <Button :disabled="isReviewing" @click="actions.handleBatchReview">
+          {{ isReviewing ? 'Submitting…' : `Confirm ${verdict}` }}
+        </Button>
+      </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { useAuthStore } from '@/stores/auth'
 import { useSubmissionBatchActions } from './useSubmissionBatchActions'
 
-const authStore = useAuthStore()
-
 defineProps<{ selectedIdsLength: number }>()
+
+const authStore = useAuthStore()
 
 const verdict = ref<'approve' | 'reject' | null>(null)
 const reason = ref('')

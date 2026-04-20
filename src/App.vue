@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
-import NavBar from '@/components/NavBar.vue'
-import { Toaster } from '@/components/ui/sonner'
+import MainLayout from '@/components/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 import 'vue-sonner/style.css'
 
@@ -18,10 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <NavBar />
-  <RouterView />
-  <Toaster rich-colors position="top-center" />
+  <MainLayout>
+    <RouterView />
+  </MainLayout>
 </template>
-
-<style scoped>
-</style>

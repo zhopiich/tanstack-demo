@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
@@ -29,35 +31,23 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div>
-    <h1>Login</h1>
-    <form @submit.prevent="handleSubmit">
-      <div>
-        <label for="email">Email</label>
-        <input
-          id="email"
-          v-model="email"
-          type="email"
-          required
-          autocomplete="email"
-        >
-      </div>
-      <div>
-        <label for="password">Password</label>
-        <input
-          id="password"
-          v-model="password"
-          type="password"
-          required
-          autocomplete="current-password"
-        >
-      </div>
-      <p v-if="error">
-        {{ error }}
-      </p>
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Logging in…' : 'Login' }}
-      </button>
-    </form>
+  <div class="flex items-center justify-center">
+    <div class="max-w-sm space-y-4 px-2">
+      <h1 class="text-2xl font-semibold">
+        Login
+      </h1>
+      <form class="space-y-3" @submit.prevent="handleSubmit">
+        <Input id="email" v-model="email" type="email" required autocomplete="email" placeholder="Email" />
+        <Input id="password" v-model="password" type="password" required autocomplete="current-password" placeholder="Password" />
+        <p v-if="error" class="text-sm text-destructive">
+          {{ error }}
+        </p>
+        <div class="flex justify-end">
+          <Button type="submit" :disabled="loading">
+            {{ loading ? 'Logging in…' : 'Login' }}
+          </Button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>

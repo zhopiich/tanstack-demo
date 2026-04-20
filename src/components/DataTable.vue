@@ -1,39 +1,59 @@
 <template>
-  <table>
-    <thead>
-      <tr>
-        <th
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead
           v-for="header in table.getFlatHeaders()"
           :key="header.id"
-          :style="header.column.getCanSort() ? 'cursor: pointer; user-select: none;' : ''"
+          class="select-none"
+          :class="[
+            header.column.getCanSort() ? 'cursor-pointer' : '',
+            header.column.columnDef.meta?.headerClass,
+          ]"
           @click="header.column.getToggleSortingHandler()?.($event)"
         >
           <FlexRender
             :render="header.column.columnDef.header"
             :props="header.getContext()"
           />
-          <span v-if="header.column.getIsSorted() === 'asc'">↑</span>
-          <span v-else-if="header.column.getIsSorted() === 'desc'">↓</span>
-          <span v-else-if="header.column.getCanSort()">↕</span>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="row in table.getRowModel().rows" :key="row.id">
-        <td v-for="cell in row.getVisibleCells()" :key="cell.id">
-          <FlexRender
-            :render="cell.column.columnDef.cell"
-            :props="cell.getContext()"
-          />
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          <template v-if="header.column.getCanSort()">
+            <ArrowUp v-if="header.column.getIsSorted() === 'asc'" class="size-4 ml-1 inline-block" />
+            <ArrowDown v-else-if="header.column.getIsSorted() === 'desc'" class="size-4 ml-1 inline-block" />
+            <ArrowUpDown v-else class="size-4 ml-1 inline-block opacity-30" />
+          </template>
+        </TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      <TableSkeleton :table :is-fetching :is-pending :no-skeleton-columns>
+        <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
+          <TableCell
+            v-for="cell in row.getVisibleCells()"
+            :key="cell.id"
+            :class="cell.column.columnDef.meta?.cellClass"
+          >
+            <FlexRender
+              :render="cell.column.columnDef.cell"
+              :props="cell.getContext()"
+            />
+          </TableCell>
+        </TableRow>
+      </TableSkeleton>
+    </TableBody>
+  </Table>
 </template>
 
 <script setup lang="ts" generic="TData">
-import type { Table } from '@tanstack/vue-table'
+import type { Table as TableInstance } from '@tanstack/vue-table'
 import { FlexRender } from '@tanstack/vue-table'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-vue-next'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import TableSkeleton from './TableSkeleton.vue'
 
-defineProps<{ table: Table<TData> }>()
+defineProps<{
+  table: TableInstance<TData>
+  isPending?: boolean
+  isFetching?: boolean
+  noSkeletonColumns?: string[]
+}>()
 </script>
