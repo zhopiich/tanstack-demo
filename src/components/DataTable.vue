@@ -5,25 +5,33 @@
         <TableHead
           v-for="header in table.getFlatHeaders()"
           :key="header.id"
-          :class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''"
+          class="select-none"
+          :class="[
+            header.column.getCanSort() ? 'cursor-pointer' : '',
+            header.column.columnDef.meta?.headerClass,
+          ]"
           @click="header.column.getToggleSortingHandler()?.($event)"
         >
-            <FlexRender
-              :render="header.column.columnDef.header"
-              :props="header.getContext()"
-            />
-            <template v-if="header.column.getCanSort()">
+          <FlexRender
+            :render="header.column.columnDef.header"
+            :props="header.getContext()"
+          />
+          <template v-if="header.column.getCanSort()">
             <ArrowUp v-if="header.column.getIsSorted() === 'asc'" class="size-4 ml-1 inline-block" />
             <ArrowDown v-else-if="header.column.getIsSorted() === 'desc'" class="size-4 ml-1 inline-block" />
             <ArrowUpDown v-else class="size-4 ml-1 inline-block opacity-30" />
-            </template>
+          </template>
         </TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>
       <TableSkeleton :table :is-fetching :is-pending :no-skeleton-columns>
         <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
-          <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+          <TableCell
+            v-for="cell in row.getVisibleCells()"
+            :key="cell.id"
+            :class="cell.column.columnDef.meta?.cellClass"
+          >
             <FlexRender
               :render="cell.column.columnDef.cell"
               :props="cell.getContext()"

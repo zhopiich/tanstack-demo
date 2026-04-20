@@ -22,6 +22,7 @@ export function createColumns(): ColumnDef<Submission, any>[] {
     columnHelper.accessor('type', { header: 'Type', enableSorting: false }),
     columnHelper.accessor('status', {
       header: 'Status',
+      meta: { headerClass: 'text-center', cellClass: 'text-center' },
       enableSorting: false,
       cell: ({ row }) => h(StatusTableCell, {
         id: row.original.id,
@@ -31,17 +32,28 @@ export function createColumns(): ColumnDef<Submission, any>[] {
     columnHelper.accessor(row => row.submitter.name, {
       id: 'submitter',
       header: 'Submitter',
+      meta: { headerClass: 'text-center' },
       enableSorting: false,
     }),
-    columnHelper.accessor('score', { header: 'Score', enableSorting: true }),
+    columnHelper.accessor('score', {
+      header: 'Score',
+      meta: { cellClass: 'text-right' },
+      enableSorting: true,
+    }),
     columnHelper.accessor('createdAt', {
       header: 'Created At',
+      meta: { cellClass: 'text-right' },
       enableSorting: true,
-      cell: info => new Date(info.getValue()).toLocaleDateString(),
+      cell: info => new Date(info.getValue()).toLocaleDateString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }),
     }),
     columnHelper.display({
       id: 'actions',
       header: 'Actions',
+      meta: { headerClass: 'text-center' },
       cell: ({ row }) => h(ActionsTableCell, {
         id: row.original.id,
       }),
