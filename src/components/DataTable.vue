@@ -23,14 +23,16 @@
       </TableRow>
     </TableHeader>
     <TableBody>
-      <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
-        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-          <FlexRender
-            :render="cell.column.columnDef.cell"
-            :props="cell.getContext()"
-          />
-        </TableCell>
-      </TableRow>
+      <TableSkeleton :table :is-fetching :is-pending :no-skeleton-columns>
+        <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
+          <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+            <FlexRender
+              :render="cell.column.columnDef.cell"
+              :props="cell.getContext()"
+            />
+          </TableCell>
+        </TableRow>
+      </TableSkeleton>
     </TableBody>
   </Table>
 </template>
@@ -40,6 +42,12 @@ import type { Table as TableInstance } from '@tanstack/vue-table'
 import { FlexRender } from '@tanstack/vue-table'
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-vue-next'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import TableSkeleton from './TableSkeleton.vue'
 
-defineProps<{ table: TableInstance<TData> }>()
+defineProps<{
+  table: TableInstance<TData>
+  isPending?: boolean
+  isFetching?: boolean
+  noSkeletonColumns?: string[]
+}>()
 </script>
