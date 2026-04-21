@@ -24,9 +24,7 @@
         <div class="flex flex-col gap-2">
           <SubmissionsFilterBar />
 
-          <div class="rounded-md border overflow-hidden">
-            <SubmissionsTable :table :is-pending :is-fetching />
-          </div>
+          <SubmissionsTable :table :is-pending :is-fetching />
 
           <SubmissionsPagination
             v-if="pagination"

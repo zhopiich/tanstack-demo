@@ -1,5 +1,7 @@
 <template>
-  <DataTable :table :is-pending :is-fetching :no-skeleton-columns />
+  <div class="overflow-hidden rounded-md border">
+    <DataTable :table :is-pending :is-fetching :no-skeleton-columns />
+  </div>
 </template>
 
 <script setup lang="ts">
