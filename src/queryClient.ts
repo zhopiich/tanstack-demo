@@ -17,7 +17,9 @@ queryClient.getMutationCache().subscribe((event) => {
   const meta = event.mutation.options.meta
 
   if (status === 'success') {
-    toast.success(meta?.successMessage as string ?? 'Done')
+    const msg = meta?.successMessage
+    if (msg)
+      toast.success(msg)
   }
   if (status === 'error') {
     const msg = meta?.errorMessage as string
