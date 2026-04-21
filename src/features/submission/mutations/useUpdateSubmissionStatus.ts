@@ -12,7 +12,7 @@ export function useUpdateSubmissionStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    meta: { successMessage: 'Status updated', errorMessage: 'Failed to update status' },
+    meta: { errorMessage: 'Failed to update status' },
     mutationFn: async ({ id, status }: { id: string } & StatusUpdateBody) => {
       const { data, error } = await apiClient.PATCH('/submissions/{id}/status', {
         params: { path: { id } },
