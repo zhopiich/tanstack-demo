@@ -5,14 +5,7 @@
         Submissions
       </h1>
 
-      <div v-if="authStore.role === 'admin'">
-        <Button as-child variant="outline" size="sm">
-          <RouterLink to="/submissions/new">
-            <Plus class="size-4" />
-            New Submission
-          </RouterLink>
-        </Button>
-      </div>
+      <NewSubmissionButton v-if="authStore.role === 'admin'" />
     </div>
 
     <div class="flex flex-col gap-2">
@@ -45,10 +38,8 @@
 </template>
 
 <script setup lang="ts">
-import { Plus } from 'lucide-vue-next'
-import { RouterLink } from 'vue-router'
-import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth'
+import NewSubmissionButton from './components/NewSubmissionButton.vue'
 import SubmissionBatchActionsBar from './components/SubmissionBatchActionsBar'
 import SubmissionsFilterBar from './components/SubmissionsFilterBar.vue'
 import SubmissionsPagination from './components/SubmissionsPagination.vue'
