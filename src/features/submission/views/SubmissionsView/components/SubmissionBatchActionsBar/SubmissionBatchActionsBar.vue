@@ -12,7 +12,7 @@
         <Button variant="outline" @click="verdict = 'reject'">
           Reject
         </Button>
-        <Button v-if="authStore.role === 'admin'" :disabled="isDeleting" @click="actions.handleBatchDelete">
+        <Button v-if="authStore.role === 'admin'" :disabled="isDeleting" @click="confirmOpen = true">
           Delete
         </Button>
       </template>
@@ -29,11 +29,19 @@
         </Button>
       </template>
     </div>
+
+    <ConfirmDialog
+      v-model:open="confirmOpen"
+      title="Delete submissions?"
+      :description="`${selectedIdsLength} submission${selectedIdsLength > 1 ? 's' : ''} will be permanently deleted.`"
+      @confirm="actions.handleBatchDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuthStore } from '@/stores/auth'
@@ -42,6 +50,8 @@ import { useSubmissionBatchActions } from './useSubmissionBatchActions'
 defineProps<{ selectedIdsLength: number }>()
 
 const authStore = useAuthStore()
+
+const confirmOpen = ref(false)
 
 const verdict = ref<'approve' | 'reject' | null>(null)
 const reason = ref('')
