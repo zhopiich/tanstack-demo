@@ -150,17 +150,25 @@
             Edit
           </RouterLink>
         </Button>
-        <Button variant="destructive" :disabled="isDeleting" @click="handleDelete">
+        <Button :disabled="isDeleting" @click="confirmOpen = true">
           {{ isDeleting ? 'Deleting…' : 'Delete' }}
         </Button>
       </div>
+
+      <ConfirmDialog
+        v-model:open="confirmOpen"
+        title="Delete submission?"
+        :description="`&quot;${submission.title}&quot; will be permanently deleted.`"
+        @confirm="handleDelete"
+      />
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -182,6 +190,8 @@ const id = computed(() => route.params.id as string | undefined)
 const { data: submission, isPending, isError } = useSubmission(id)
 
 const { mutate: deleteSubmission, isPending: isDeleting } = useDeleteSubmission()
+
+const confirmOpen = ref(false)
 
 function handleDelete() {
   if (!submission.value)
