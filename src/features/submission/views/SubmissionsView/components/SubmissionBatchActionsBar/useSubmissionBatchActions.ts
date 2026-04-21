@@ -44,7 +44,6 @@ export function useSubmissionBatchActions(
     )
   }
 
-  // TODO: confirm with modal
   function handleBatchDelete() {
     batchDelete(
       { ids: [...selectedIds.value] },
