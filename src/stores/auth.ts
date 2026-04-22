@@ -2,6 +2,7 @@ import type { components } from '@/api/schema'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { apiClient, clearToken, setToken } from '@/api/client'
+import { queryClient } from '@/queryClient'
 
 type AuthUser = components['schemas']['AuthUser']
 
@@ -26,6 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
     await apiClient.POST('/auth/logout')
     clearToken()
     user.value = null
+    queryClient.clear()
   }
 
   async function fetchMe(): Promise<void> {
@@ -40,6 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   function reset(): void {
     user.value = null
+    queryClient.clear()
   }
 
   return { user, isAuthenticated, role, login, logout, fetchMe, reset }
