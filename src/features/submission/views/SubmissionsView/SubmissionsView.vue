@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-4xl mx-auto px-4 py-8">
+  <div class="py-8">
     <div class="flex justify-between">
       <h1 class="text-2xl font-bold mb-8">
         Submissions
