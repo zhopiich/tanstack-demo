@@ -12,12 +12,12 @@
     </p>
 
     <template v-else>
-      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
         <Card v-for="item in summaryList" :key="item.label">
           <CardHeader>
             <CardDescription>{{ item.label }}</CardDescription>
             <CardTitle class="text-3xl tabular-nums">
-              <Skeleton v-if="isPending" class="h-8 w-24" />
+              <Skeleton v-if="isPending" class="h-8 w-3/4 max-w-24" />
               <template v-else>
                 {{ item.value }}
               </template>
