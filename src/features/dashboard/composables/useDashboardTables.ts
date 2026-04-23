@@ -10,9 +10,13 @@ const getPercentage = (n: number) => `${(n * 100).toFixed(0)}%`
 const byTypeHelper = createColumnHelper<DashboardByType>()
 const byTypeColumns = [
   byTypeHelper.accessor('type', { header: 'Type' }),
-  byTypeHelper.accessor('count', { header: 'Count' }),
+  byTypeHelper.accessor('count', {
+    header: 'Count',
+    meta: { headerClass: 'text-right', cellClass: 'text-right' },
+  }),
   byTypeHelper.accessor('approvalRate', {
     header: 'Approval Rate',
+    meta: { headerClass: 'text-right', cellClass: 'text-right' },
     cell: info => getPercentage(info.getValue()),
   }),
 ]
@@ -23,10 +27,14 @@ const recentActivityColumns = [
     header: 'Title',
     cell: info => h(RouterLink, { to: `/submissions/${info.row.original.submissionId}` }, () => info.getValue()),
   }),
-  activityHelper.accessor('action', { header: 'Action' }),
+  activityHelper.accessor('action', {
+    header: 'Action',
+    meta: { headerClass: 'text-center', cellClass: 'text-center' },
+  }),
   activityHelper.accessor('actorName', { header: 'Actor' }),
   activityHelper.accessor('occurredAt', {
     header: 'Time',
+    meta: { headerClass: 'text-right', cellClass: 'text-right' },
     cell: info => new Date(info.getValue()).toLocaleString(),
   }),
 ]
@@ -34,10 +42,17 @@ const recentActivityColumns = [
 const submitterHelper = createColumnHelper<TopSubmitter>()
 const topSubmittersColumns = [
   submitterHelper.accessor('name', { header: 'Name' }),
-  submitterHelper.accessor('tier', { header: 'Tier' }),
-  submitterHelper.accessor('submissionCount', { header: 'Submissions' }),
+  submitterHelper.accessor('tier', {
+    header: 'Tier',
+    meta: { headerClass: 'text-center', cellClass: 'text-center' },
+  }),
+  submitterHelper.accessor('submissionCount', {
+    header: 'Submissions',
+    meta: { headerClass: 'text-right', cellClass: 'text-right' },
+  }),
   submitterHelper.accessor('approvalRate', {
     header: 'Approval Rate',
+    meta: { headerClass: 'text-right', cellClass: 'text-right' },
     cell: info => getPercentage(info.getValue()),
   }),
 ]
