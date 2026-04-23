@@ -31,7 +31,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="flex items-center justify-center">
+  <div class="fixed inset-0 flex items-center justify-center">
     <div class="max-w-sm space-y-4 px-2">
       <h1 class="text-2xl font-semibold">
         Login
