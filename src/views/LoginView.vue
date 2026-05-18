@@ -8,8 +8,10 @@ import { useAuthStore } from '@/stores/auth'
 const authStore = useAuthStore()
 const router = useRouter()
 
-const email = ref('')
-const password = ref('')
+const shouldPrefillDemoCredentials = import.meta.env.DEV || import.meta.env.VITE_USE_MSW === 'true'
+
+const email = ref(shouldPrefillDemoCredentials ? 'admin@example.com' : '')
+const password = ref(shouldPrefillDemoCredentials ? 'password123' : '')
 const error = ref<string | null>(null)
 const loading = ref(false)
 
@@ -36,6 +38,9 @@ async function handleSubmit() {
       <h1 class="text-2xl font-semibold">
         Login
       </h1>
+      <p v-if="shouldPrefillDemoCredentials" class="text-sm text-muted-foreground">
+        Demo credentials prefilled.
+      </p>
       <form class="space-y-3" @submit.prevent="handleSubmit">
         <Input id="email" v-model="email" type="email" required autocomplete="email" placeholder="Email" />
         <Input id="password" v-model="password" type="password" required autocomplete="current-password" placeholder="Password" />
