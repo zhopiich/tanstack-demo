@@ -21,7 +21,7 @@ export const dashboardHandlers = [
 
     const types = ['article', 'video', 'image', 'link'] as const
     const byType: components['schemas']['DashboardByType'][] = types.map((type) => {
-      const items = all.filter(s => s.type === type)
+      const items = all.filter(s => s.content.type === type)
       const approved = items.filter(s => s.status === 'approved').length
       return {
         type,
