@@ -12,7 +12,7 @@ import './assets/main.css'
 async function main() {
   const app = createApp(App)
 
-  const shouldUseMsw = import.meta.env.DEV || import.meta.env.VITE_USE_MSW === 'true'
+  const shouldUseMsw = import.meta.env.VITE_USE_MSW === 'true'
 
   if (shouldUseMsw) {
     const { MockPlugin } = await import('./mocks/panel-plugin')
