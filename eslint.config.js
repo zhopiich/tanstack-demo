@@ -6,5 +6,8 @@ export default antfu({
       'vue/block-order': ['error', { order: [['script', 'template'], 'style'] }],
     },
   },
-  ignores: ['public/mockServiceWorker.js'],
+  ignores: [
+    'public/mockServiceWorker.js',
+    'src/api/schema.d.ts',
+  ],
 })
