@@ -1,7 +1,7 @@
 import type { components } from '@/api/schema'
 import { z } from 'zod'
 import { createDataResponseSchema, createListResponseSchema, CuidSchema } from '@/schemas/common'
-import { SubmissionTypeSchema, SubmitterTierSchema } from '@/schemas/submission'
+import { SubmitterTierSchema } from '@/schemas/submission'
 
 export type SubmissionStatus = components['schemas']['SubmissionStatus']
 export type VideoResolution = components['schemas']['VideoResolution']
@@ -104,7 +104,6 @@ const SubmissionSchemaBase = z
   .object({
     id: CuidSchema,
     title: z.string().min(1).max(100),
-    type: SubmissionTypeSchema,
     status: SubmissionStatusSchema,
     submitter: SubmitterSchema,
     content: ContentSchema,
@@ -150,10 +149,9 @@ export const SubmissionDetailResponseSchema
 
 export const SubmissionCreateFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must be 100 characters or less'),
-  type: SubmissionTypeSchema,
   tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed'),
   content: ContentSchema,
-  submitterEmail: z.email('Invalid email').optional(),
+  submitterEmail: z.email('Invalid email'),
 }) satisfies z.ZodType<SubmissionCreateForm>
 
 export const SubmissionUpdateFormSchema
