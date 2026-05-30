@@ -116,9 +116,10 @@ components:
           type: string
           format: uri
         thumbnailUrl:
-          type: string
+          type:
+            - string
+            - 'null'
           format: uri
-          nullable: true
 
     ArticleContent:
       allOf:
@@ -226,7 +227,6 @@ components:
       required:
         - id
         - title
-        - type
         - status
         - submitter
         - content
@@ -244,8 +244,6 @@ components:
           type: string
           minLength: 1
           maxLength: 100
-        type:
-          $ref: '#/components/schemas/SubmissionType'
         status:
           $ref: '#/components/schemas/SubmissionStatus'
         submitter:
@@ -279,14 +277,12 @@ components:
 
     SubmissionCreateBody:
       type: object
-      required: [title, type, tags, content]
+      required: [title, tags, content, submitterEmail]
       properties:
         title:
           type: string
           minLength: 1
           maxLength: 100
-        type:
-          $ref: '#/components/schemas/SubmissionType'
         tags:
           type: array
           items:

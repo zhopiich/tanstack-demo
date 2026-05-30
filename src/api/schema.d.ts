@@ -631,7 +631,6 @@ export interface components {
         Submission: {
             id: string;
             title: string;
-            type: components["schemas"]["SubmissionType"];
             status: components["schemas"]["SubmissionStatus"];
             submitter: components["schemas"]["Submitter"];
             content: components["schemas"]["Content"];
@@ -646,11 +645,10 @@ export interface components {
         };
         SubmissionCreateBody: {
             title: string;
-            type: components["schemas"]["SubmissionType"];
             tags: string[];
             content: components["schemas"]["Content"];
             /** Format: email */
-            submitterEmail?: string;
+            submitterEmail: string;
         };
         SubmissionUpdateBody: {
             title?: string;
