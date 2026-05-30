@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:msw": "vite --mode msw",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",

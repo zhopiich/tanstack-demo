@@ -32,6 +32,13 @@ pnpm install
 pnpm dev
 ```
 
+To use MSW
+```bash
+cp .env.msw.example .env.msw
+pnpm dev:msw
+```
+
+
 ---
 
 ## Tech Stack
