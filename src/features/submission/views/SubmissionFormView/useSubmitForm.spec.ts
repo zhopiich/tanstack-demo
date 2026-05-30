@@ -13,7 +13,6 @@ vi.mock('@/features/submission/queries/useSubmissionMutations', () => ({
 
 const validForm = {
   title: 'Test Title',
-  type: 'article' as const,
   tags: [] as string[],
   content: {
     type: 'article' as const,
@@ -22,6 +21,7 @@ const validForm = {
     wordCount: 100,
     readingTime: 5,
   },
+  submitterEmail: 'user@example.com',
 }
 
 let mockCreateMutate: ReturnType<typeof vi.fn>

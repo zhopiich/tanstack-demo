@@ -20,7 +20,6 @@ vi.mock('../stores/useSubmissionFilters', () => ({
 const mockSubmission: Submission = {
   id: 'sub-1',
   title: 'Test',
-  type: 'article',
   status: 'pending',
   submitter: { id: 'u-1', name: 'User', email: 'u@example.com', tier: 'pro' },
   content: {
