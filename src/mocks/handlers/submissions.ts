@@ -73,7 +73,7 @@ export const submissionHandlers = [
     if (status)
       results = results.filter(s => s.status === status)
     if (type)
-      results = results.filter(s => s.type === type)
+      results = results.filter(s => s.content.type === type)
     if (tier)
       results = results.filter(s => s.submitter.tier === tier)
     if (search)

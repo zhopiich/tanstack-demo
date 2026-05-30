@@ -60,7 +60,6 @@ const submissions: Submission[] = [
   {
     id: createId(),
     title: 'Getting Started with TypeScript 5.0',
-    type: 'article',
     status: 'approved',
     submitter: alice,
     content: {
@@ -85,7 +84,6 @@ const submissions: Submission[] = [
   {
     id: createId(),
     title: 'Tailwind CSS v4 Migration Guide',
-    type: 'article',
     status: 'approved',
     submitter: bob,
     content: {
@@ -110,7 +108,6 @@ const submissions: Submission[] = [
   {
     id: createId(),
     title: 'Building REST APIs with Hono',
-    type: 'video',
     status: 'pending',
     submitter: alice,
     content: {
@@ -130,7 +127,6 @@ const submissions: Submission[] = [
   {
     id: createId(),
     title: 'Vue 3 Composition API Deep Dive',
-    type: 'video',
     status: 'approved',
     submitter: alice,
     content: {
@@ -155,7 +151,6 @@ const submissions: Submission[] = [
   {
     id: createId(),
     title: 'Premium Design System (Paywalled)',
-    type: 'link',
     status: 'rejected',
     submitter: carol,
     content: {
@@ -180,7 +175,6 @@ const submissions: Submission[] = [
   {
     id: createId(),
     title: 'Introduction to Web Assembly',
-    type: 'video',
     status: 'flagged',
     submitter: bob,
     content: {

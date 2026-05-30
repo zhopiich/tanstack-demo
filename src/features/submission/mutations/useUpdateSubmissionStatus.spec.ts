@@ -18,7 +18,6 @@ vi.mock('@/api/client', () => ({
 const mockSubmission: Submission = {
   id: 'sub-1',
   title: 'Test',
-  type: 'article',
   status: 'pending',
   submitter: { id: 'u-1', name: 'User', email: 'u@example.com', tier: 'pro' },
   content: { type: 'article', url: 'https://example.com', thumbnailUrl: null, wordCount: 100, readingTime: 5 },

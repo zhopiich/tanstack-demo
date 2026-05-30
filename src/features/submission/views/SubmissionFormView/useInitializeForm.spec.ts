@@ -9,16 +9,15 @@ vi.mock('../../queries/useSubmission', () => ({ useSubmission: vi.fn() }))
 function getDefaultForm(): SubmissionCreateForm {
   return {
     title: '',
-    type: 'article',
     tags: [],
     content: { type: 'article', url: '', thumbnailUrl: null, wordCount: 0, readingTime: 0 },
+    submitterEmail: '',
   }
 }
 
 const mockSubmission: Submission = {
   id: 'sub-1',
   title: 'From Server',
-  type: 'video',
   status: 'pending',
   submitter: { id: 'user-1', name: 'Test User', email: 'test@example.com', tier: 'pro' },
   content: {
@@ -53,7 +52,7 @@ describe('useInitializeForm', () => {
     syncForm(mockSubmission)
 
     expect(form.title).toBe('From Server')
-    expect(form.type).toBe('video')
+    expect(form.content.type).toBe('video')
     expect(form.tags).toEqual(['tag1', 'tag2'])
   })
 
@@ -75,7 +74,7 @@ describe('useInitializeForm', () => {
     useInitializeForm({ id: ref('sub-1'), form, defaultForm: getDefaultForm() })
 
     expect(form.title).toBe('From Server')
-    expect(form.type).toBe('video')
+    expect(form.content.type).toBe('video')
   })
 
   it('re-syncs form when data changes', async () => {

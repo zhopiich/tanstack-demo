@@ -13,7 +13,7 @@
         <CardHeader>
           <CardTitle>{{ submission.title }}</CardTitle>
           <div class="flex gap-2 text-sm text-muted-foreground">
-            <span>{{ submission.type }}</span>
+            <span>{{ submission.content.type }}</span>
             <span>·</span>
             <span>{{ submission.status }}</span>
           </div>

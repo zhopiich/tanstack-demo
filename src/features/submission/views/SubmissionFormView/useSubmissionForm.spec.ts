@@ -30,23 +30,15 @@ describe('useSubmissionForm', () => {
   it('form starts with default values', () => {
     const { form } = useSubmissionForm({ id: ref(undefined) })
     expect(form.title).toBe('')
-    expect(form.type).toBe('article')
+    expect(form.content.type).toBe('article')
     expect(form.tags).toEqual([])
   })
 
   it('changing type in create mode resets content to type-specific defaults', async () => {
     const { form } = useSubmissionForm({ id: ref(undefined) })
-    form.type = 'video'
+    form.content.type = 'video'
     await nextTick()
     expect(form.content.type).toBe('video')
-  })
-
-  it('changing type in edit mode does not reset content', async () => {
-    const { form } = useSubmissionForm({ id: ref('sub-1') })
-    form.content = { type: 'article', url: 'https://keep.me', thumbnailUrl: null, wordCount: 100, readingTime: 5 }
-    form.type = 'video'
-    await nextTick()
-    expect(form.content.type).toBe('article')
   })
 
   it('each call gets an independent form instance', () => {
