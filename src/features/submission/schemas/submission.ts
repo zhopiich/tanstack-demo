@@ -155,7 +155,7 @@ export const SubmissionCreateFormSchema = z.object({
 }) satisfies z.ZodType<SubmissionCreateForm>
 
 export const SubmissionUpdateFormSchema
-  = SubmissionCreateFormSchema.partial() satisfies z.ZodType<SubmissionUpdateForm>
+  = SubmissionCreateFormSchema.omit({ submitterEmail: true }).partial() satisfies z.ZodType<SubmissionUpdateForm>
 
 export const BatchReviewFormSchema = z.object({
   ids: z.array(CuidSchema).min(1, 'Please select at least one record'),
