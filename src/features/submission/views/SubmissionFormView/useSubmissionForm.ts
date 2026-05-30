@@ -14,9 +14,9 @@ const defaultContent: Record<SubmissionType, Content> = {
 
 const defaultForm: SubmissionCreateForm = {
   title: '',
-  type: 'article',
   tags: [],
   content: { ...defaultContent.article },
+  submitterEmail: '',
 }
 
 interface Params {
@@ -34,7 +34,7 @@ export function useSubmissionForm(params: Params) {
   useInitializeForm({ id, form, defaultForm })
   const { errors, isPending, submit } = useSubmitForm({ id, form, isCreatingNew, onSuccess })
 
-  watch(() => form.type, (newType) => {
+  watch(() => form.content.type, (newType) => {
     if (isCreatingNew.value) {
       form.content = { ...defaultContent[newType] }
     }

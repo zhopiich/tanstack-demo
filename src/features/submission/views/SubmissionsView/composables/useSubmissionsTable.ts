@@ -19,7 +19,7 @@ export function createColumns(): ColumnDef<Submission, any>[] {
       cell: ({ row }) => h(SelectRowCell, { row }),
     }),
     columnHelper.accessor('title', { header: 'Title', enableSorting: false }),
-    columnHelper.accessor('type', { header: 'Type', enableSorting: false }),
+    columnHelper.accessor(row => row.content.type, { id: 'type', header: 'Type', enableSorting: false }),
     columnHelper.accessor('status', {
       header: 'Status',
       meta: { headerClass: 'text-center', cellClass: 'text-center' },

@@ -22,7 +22,7 @@
           <FieldLabel for="type">
             Type
           </FieldLabel>
-          <Select id="type" v-model="form.type">
+          <Select id="type" v-model="form.content.type">
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -156,7 +156,7 @@
 
         <Field v-if="isCreatingNew">
           <FieldLabel for="submitterEmail">
-            Submitter Email (optional)
+            Submitter Email
           </FieldLabel>
           <Input id="submitterEmail" v-model="form.submitterEmail" type="email" />
           <FieldError :errors="[errors.submitterEmail]" />
