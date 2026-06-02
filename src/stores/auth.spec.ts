@@ -1,14 +1,18 @@
 import type { AuthUser } from '@/schemas/auth'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { apiClient, clearToken, setToken } from '@/api/client'
+import { clearAccessToken, setAccessToken } from '@/api/auth-token'
+import { apiClient } from '@/api/client'
 import { queryClient } from '@/queryClient'
 import { useAuthStore } from './auth'
 
+vi.mock('@/api/auth-token', () => ({
+  clearAccessToken: vi.fn(),
+  setAccessToken: vi.fn(),
+}))
+
 vi.mock('@/api/client', () => ({
   apiClient: { GET: vi.fn(), POST: vi.fn() },
-  clearToken: vi.fn(),
-  setToken: vi.fn(),
 }))
 
 vi.mock('@/queryClient', () => ({
@@ -68,16 +72,16 @@ describe('useAuthStore', () => {
       store.user = mockUser
       await store.fetchMe()
       expect(store.user).toBeNull()
-      expect(clearToken).toHaveBeenCalled()
+      expect(clearAccessToken).toHaveBeenCalled()
     })
   })
 
   describe('login', () => {
     it('sets token and user on success', async () => {
-      vi.mocked(apiClient.POST).mockResolvedValue({ data: { token: 'tok', user: mockUser }, error: undefined } as any)
+      vi.mocked(apiClient.POST).mockResolvedValue({ data: { accessToken: 'tok', tokenType: 'Bearer', expiresIn: 900, user: mockUser }, error: undefined } as any)
       const store = useAuthStore()
       await store.login('alice@example.com', 'password')
-      expect(setToken).toHaveBeenCalledWith('tok')
+      expect(setAccessToken).toHaveBeenCalledWith('tok')
       expect(store.user).toEqual(mockUser)
     })
 
@@ -96,7 +100,7 @@ describe('useAuthStore', () => {
       store.user = mockUser
       await store.logout()
       expect(store.user).toBeNull()
-      expect(clearToken).toHaveBeenCalled()
+      expect(clearAccessToken).toHaveBeenCalled()
       expect(queryClient.clear).toHaveBeenCalled()
     })
   })
