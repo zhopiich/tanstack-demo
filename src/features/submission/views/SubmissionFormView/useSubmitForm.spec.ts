@@ -99,7 +99,7 @@ describe('useSubmitForm', () => {
 
       await submit()
 
-      expect(mockUpdateMutate).toHaveBeenCalledWith({ id: 'submission-123', body: validForm })
+      expect(mockUpdateMutate).toHaveBeenCalledWith({ id: 'submission-123', body: { title: 'Test Title', tags: [], content: validForm.content } })
       expect(mockCreateMutate).not.toHaveBeenCalled()
       expect(onSuccess).toHaveBeenCalledOnce()
       expect(errors.value).toEqual({})

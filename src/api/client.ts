@@ -1,24 +1,65 @@
 import type { Middleware } from 'openapi-fetch'
 import type { paths } from './schema'
 import createClient from 'openapi-fetch'
+import { clearAccessToken, getAccessToken, setAccessToken } from './auth-token'
 
-const TOKEN_KEY = 'auth_token'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
-export const getToken = (): string | null => localStorage.getItem(TOKEN_KEY)
-export const setToken = (token: string): void => localStorage.setItem(TOKEN_KEY, token)
-export const clearToken = (): void => localStorage.removeItem(TOKEN_KEY)
+let refreshPromise: Promise<boolean> | null = null
+
+async function tryRefresh(): Promise<boolean> {
+  if (refreshPromise)
+    return refreshPromise
+
+  refreshPromise = fetch(`${BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+  }).then(async (res) => {
+    if (!res.ok)
+      return false
+    const data = await res.json()
+    setAccessToken(data.accessToken)
+    return true
+  }).finally(() => { refreshPromise = null })
+
+  return refreshPromise
+}
+
+const RETRY_CACHE = Symbol('retry')
 
 const authMiddleware: Middleware = {
   async onRequest({ request }) {
-    const token = getToken()
+    const token = getAccessToken()
     if (token) {
       request.headers.set('Authorization', `Bearer ${token}`)
     }
+    // Preserve a clone of the request while the body stream is still
+    // intact, so onResponse can retry mutations after a 401 refresh.
+    (request as any)[RETRY_CACHE] = request.clone()
     return request
   },
-  async onResponse({ response }) {
-    if (response.status === 401) {
-      clearToken()
+  async onResponse({ request, response }) {
+    if (response.status !== 401)
+      return response
+    if (request.url.includes('/auth/refresh'))
+      return response
+
+    const refreshed = await tryRefresh()
+    if (refreshed) {
+      // Use the body-preserving clone stashed in onRequest rather than
+      // cloning the original request, whose body stream may have already
+      // been consumed (POST/PUT/PATCH).
+      const newReq = ((request as any)[RETRY_CACHE] ?? request).clone()
+      newReq.headers.set('Authorization', `Bearer ${getAccessToken()}`)
+      const retryRes = await fetch(newReq)
+      if (retryRes.ok)
+        return retryRes
+    }
+
+    // Only the first failed refresh should dispatch unauthorized.
+    // accessToken !== null indicates it hasn't been handled yet.
+    if (getAccessToken() !== null) {
+      clearAccessToken()
       window.dispatchEvent(new CustomEvent('auth:unauthorized'))
     }
     return response
@@ -26,7 +67,7 @@ const authMiddleware: Middleware = {
 }
 
 export const apiClient = createClient<paths>({
-  baseUrl: import.meta.env.VITE_API_BASE_URL ?? '/api',
+  baseUrl: BASE_URL,
 })
 
 apiClient.use(authMiddleware)
