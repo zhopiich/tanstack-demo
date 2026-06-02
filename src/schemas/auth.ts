@@ -22,7 +22,9 @@ export const LoginBodySchema = z.object({
 }) satisfies z.ZodType<LoginBody>
 
 export const AuthResponseSchema = z.object({
-  token: z.string(),
+  accessToken: z.string(),
+  tokenType: z.enum(['Bearer']),
+  expiresIn: z.number(),
   user: AuthUserSchema,
 }) satisfies z.ZodType<AuthResponse>
 
