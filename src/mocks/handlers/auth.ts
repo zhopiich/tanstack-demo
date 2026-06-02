@@ -29,7 +29,7 @@ export const authHandlers = [
       const { password: _, ...user } = userRecord
       const token = createToken(user.id)
       db.tokens.add(token)
-      const response: AuthResponse = { token, user }
+      const response: AuthResponse = { accessToken: token, user, tokenType: 'Bearer', expiresIn: 900 }
       return HttpResponse.json(response)
     },
   ),
