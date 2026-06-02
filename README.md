@@ -2,6 +2,8 @@
 
 A simulated content management system demonstrating the integration of TanStack Query, Zod, and OpenAPI schemas.
 
+Backend API: [github.com/zhopiich/tanstack-demo-backend](https://github.com/zhopiich/tanstack-demo-backend)
+
 ---
 
 ## Table of Contents
