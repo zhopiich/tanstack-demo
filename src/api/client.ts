@@ -25,12 +25,17 @@ async function tryRefresh(): Promise<boolean> {
   return refreshPromise
 }
 
+const RETRY_CACHE = Symbol('retry')
+
 const authMiddleware: Middleware = {
   async onRequest({ request }) {
     const token = getAccessToken()
     if (token) {
       request.headers.set('Authorization', `Bearer ${token}`)
     }
+    // Preserve a clone of the request while the body stream is still
+    // intact, so onResponse can retry mutations after a 401 refresh.
+    (request as any)[RETRY_CACHE] = request.clone()
     return request
   },
   async onResponse({ request, response }) {
@@ -41,7 +46,10 @@ const authMiddleware: Middleware = {
 
     const refreshed = await tryRefresh()
     if (refreshed) {
-      const newReq = request.clone()
+      // Use the body-preserving clone stashed in onRequest rather than
+      // cloning the original request, whose body stream may have already
+      // been consumed (POST/PUT/PATCH).
+      const newReq = ((request as any)[RETRY_CACHE] ?? request).clone()
       newReq.headers.set('Authorization', `Bearer ${getAccessToken()}`)
       const retryRes = await fetch(newReq)
       if (retryRes.ok)
