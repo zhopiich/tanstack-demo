@@ -3,7 +3,7 @@ import type { paths } from './schema'
 import createClient from 'openapi-fetch'
 import { clearAccessToken, getAccessToken, setAccessToken } from './auth-token'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
+const BASE_URL = import.meta.env.API_BASE_URL ?? '/api'
 
 let refreshPromise: Promise<boolean> | null = null
 
