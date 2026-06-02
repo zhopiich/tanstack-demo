@@ -2,8 +2,9 @@ import { VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 
 import { createApp } from 'vue'
-import App from './App.vue'
+import { setAccessToken } from './api/auth-token'
 
+import App from './App.vue'
 import { queryClient } from './queryClient'
 import router from './router'
 import { useAuthStore } from './stores/auth'
@@ -31,6 +32,16 @@ async function main() {
   app.use(pinia)
   app.use(router)
   app.use(VueQueryPlugin, { enableDevtoolsV6Plugin: true, queryClient })
+
+  const refreshRes = await fetch('/api/auth/refresh', {
+    method: 'POST',
+    credentials: 'include',
+  })
+
+  if (refreshRes.ok) {
+    const data = await refreshRes.json()
+    setAccessToken(data.accessToken)
+  }
 
   await useAuthStore(pinia).fetchMe()
 
