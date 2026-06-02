@@ -87,6 +87,53 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh access token */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Refresh successful */
+                200: {
+                    headers: {
+                        /** @description Rotated HttpOnly refresh token cookie */
+                        "Set-Cookie"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthResponse"];
+                    };
+                };
+                /** @description Invalid refresh token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/me": {
         parameters: {
             query?: never;
@@ -681,8 +728,12 @@ export interface components {
             role: "admin" | "reviewer";
         };
         AuthResponse: {
-            token: string;
             user: components["schemas"]["AuthUser"];
+            accessToken: string;
+            /** @enum {string} */
+            tokenType: "Bearer";
+            /** @example 900 */
+            expiresIn: number;
         };
         DashboardSummary: {
             totalSubmissions: number;

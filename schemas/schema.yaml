@@ -375,12 +375,18 @@ components:
 
     AuthResponse:
       type: object
-      required: [token, user]
+      required: [user, accessToken, tokenType, expiresIn]
       properties:
-        token:
-          type: string
         user:
           $ref: '#/components/schemas/AuthUser'
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          enum: [Bearer]
+        expiresIn:
+          type: integer
+          example: 900
 
     # --- Dashboard ---
 
@@ -517,6 +523,30 @@ paths:
       responses:
         '204':
           description: Logout successful
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      summary: Refresh access token
+      security: []
+      responses:
+        '200':
+          description: Refresh successful
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Rotated HttpOnly refresh token cookie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /auth/me:
     get:
