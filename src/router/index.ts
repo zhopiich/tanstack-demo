@@ -64,8 +64,10 @@ router.beforeEach((to) => {
     return { name: 'submissions' }
   }
   if (to.meta.requiresAdmin) {
-    if (!authStore.isAuthenticated) return { name: 'login' }
-    if (authStore.role !== 'admin') return { name: 'submissions' }
+    if (!authStore.isAuthenticated)
+      return { name: 'login' }
+    if (authStore.role !== 'admin')
+      return { name: 'submissions' }
   }
 })
 
