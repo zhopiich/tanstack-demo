@@ -2,8 +2,8 @@ import { VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 
 import { createApp } from 'vue'
-import { setAccessToken } from './api/auth-token'
-
+import { notifyUnauthorized, onUnauthorized } from './api/auth-token'
+import { tryRefresh } from './api/client'
 import App from './App.vue'
 import { queryClient } from './queryClient'
 import router from './router'
@@ -30,22 +30,27 @@ async function main() {
   const pinia = createPinia()
 
   app.use(pinia)
-  app.use(router)
   app.use(VueQueryPlugin, { enableDevtoolsV6Plugin: true, queryClient })
 
-  const refreshRes = await fetch('/api/auth/refresh', {
-    method: 'POST',
-    credentials: 'include',
+  const auth = useAuthStore()
+
+  onUnauthorized(() => {
+    auth.reset()
+    router.push('/login')
   })
 
-  if (refreshRes.ok) {
-    const data = await refreshRes.json()
-    setAccessToken(data.accessToken)
+  const refreshed = await tryRefresh()
+  if (refreshed) {
+    await auth.fetchMe()
   }
 
-  await useAuthStore(pinia).fetchMe()
+  app.use(router)
 
   app.mount('#app')
+
+  if (!refreshed) {
+    notifyUnauthorized()
+  }
 }
 
 main()
