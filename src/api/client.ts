@@ -68,6 +68,7 @@ const authMiddleware: Middleware = {
 
 export const apiClient = createClient<paths>({
   baseUrl: BASE_URL,
+  credentials: 'include',
 })
 
 apiClient.use(authMiddleware)
