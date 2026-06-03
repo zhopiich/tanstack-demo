@@ -11,3 +11,13 @@ export function setAccessToken(token: string | null): void {
 export function clearAccessToken(): void {
   accessToken = null
 }
+
+let unauthorizedHandler: (() => void) | null = null
+
+export function onUnauthorized(callback: () => void): void {
+  unauthorizedHandler = callback
+}
+
+export function notifyUnauthorized(): void {
+  unauthorizedHandler?.()
+}

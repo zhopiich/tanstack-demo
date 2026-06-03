@@ -1,13 +1,13 @@
 import type { Middleware } from 'openapi-fetch'
 import type { paths } from './schema'
 import createClient from 'openapi-fetch'
-import { clearAccessToken, getAccessToken, setAccessToken } from './auth-token'
+import { clearAccessToken, getAccessToken, notifyUnauthorized, setAccessToken } from './auth-token'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
 let refreshPromise: Promise<boolean> | null = null
 
-async function tryRefresh(): Promise<boolean> {
+export async function tryRefresh(): Promise<boolean> {
   if (refreshPromise)
     return refreshPromise
 
@@ -60,7 +60,7 @@ const authMiddleware: Middleware = {
     // accessToken !== null indicates it hasn't been handled yet.
     if (getAccessToken() !== null) {
       clearAccessToken()
-      window.dispatchEvent(new CustomEvent('auth:unauthorized'))
+      notifyUnauthorized()
     }
     return response
   },
