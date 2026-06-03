@@ -60,15 +60,12 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const authStore = useAuthStore()
-  if (authStore.isAuthenticated && to.name === 'login') {
+  if ((authStore.isAuthenticated && to.name === 'login')
+    || (to.meta.requiresAdmin && authStore.role !== 'admin')) {
     return { name: 'submissions' }
   }
-  if (to.meta.requiresAdmin) {
-    if (!authStore.isAuthenticated)
-      return { name: 'login' }
-    if (authStore.role !== 'admin')
-      return { name: 'submissions' }
-  }
+  if (!authStore.isAuthenticated && to.name !== 'login')
+    return { name: 'login' }
 })
 
 export default router
