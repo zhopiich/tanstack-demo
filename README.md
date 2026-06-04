@@ -40,6 +40,12 @@ cp .env.msw.example .env.msw
 pnpm dev:msw
 ```
 
+### Demo Accounts
+
+| Role | Email | Password |
+|------|--------|----------|
+| Admin | admin@example.com | password123 |
+| Reviewer | reviewer@example.com | password123 |
 
 ---
 
